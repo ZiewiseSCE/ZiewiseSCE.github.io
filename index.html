@@ -18,6 +18,18 @@
     <link rel="stylesheet" href="resources/css/header.css" />
     <link rel="stylesheet" href="resources/css/main_style.css" />
     <link rel="icon" href="resources/images/header/scenergy_logo_200.png" />
+    <style>
+      /* 메뉴 마우스 오버 확대 효과 */
+      .menu_item {
+        transition: transform 0.2s ease; /* 0.2초 동안 부드럽게 변신 */
+      }
+      .menu_item:hover {
+        transform: scale(1.2); /* 1.2배 크기로 확대 */
+        z-index: 100; /* 확대될 때 다른 글자 위로 올라오게 함 */
+      }
+      /* (선택) 링크 글자색도 진하게 하려면 아래 주석 해제 */
+      /* .menu_item:hover a { color: #000; font-weight: bold; } */
+    </style>
   </head>
   <body oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
     <header id="header" class="">
