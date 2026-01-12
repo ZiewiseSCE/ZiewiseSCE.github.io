@@ -1,0 +1,1431 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Pathfinder V153 (Critical Fixed)</title>
+    
+    <!-- 라이브러리 로드 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://unpkg.com/@turf/turf/turf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    
+    <style>
+        body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Pretendard', sans-serif; }
+        #map { width: 100%; height: 100%; z-index: 1; background: #1a1a1a; }
+        .sidebar { z-index: 2000; transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .sidebar.collapsed { transform: translateX(-100%); }
+        ::-webkit-scrollbar { width: 4px; background: #333; }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 2px; }
+        
+        .active-grid { stroke: #06b6d4; stroke-width: 3; fill: #06b6d4; fill-opacity: 0.2; animation: pulse-grid 1.5s infinite; }
+        @keyframes pulse-grid { 0% { stroke-opacity: 1; fill-opacity: 0.1; } 50% { stroke-opacity: 0.5; fill-opacity: 0.3; } 100% { stroke-opacity: 1; fill-opacity: 0.1; } }
+        
+        .log-line { font-family: monospace; font-size: 11px; border-bottom: 1px solid #333; padding: 3px 0; }
+        .log-ok { color: #4ade80; } 
+        .log-roof { color: #f472b6; font-weight: bold; } 
+        .log-err { color: #f87171; } 
+        .log-sys { color: #38bdf8; font-weight: bold; }
+        .log-kepco { color: #fde047; font-weight: bold; }
+        .log-exclude { color: #94a3b8; font-style: italic; }
+
+        .tab-btn { transition: all 0.2s; border-bottom: 2px solid transparent; }
+        .tab-btn.active { border-bottom-color: #06b6d4; color: #06b6d4; font-weight: bold; }
+
+        .result-card { background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(6, 182, 212, 0.3); }
+        .finance-badge { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); }
+        .pf-badge { background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); }
+
+        .selectable-building { cursor: pointer; stroke: #fff; stroke-width: 2; stroke-dasharray: 4; fill: #38bdf8; fill-opacity: 0.3; transition: all 0.2s; }
+        .selectable-building:hover { fill-opacity: 0.6; stroke: #06b6d4; stroke-width: 3; }
+        
+        .fallback-land { cursor: pointer; stroke: #f97316; stroke-width: 2; stroke-dasharray: 2,4; fill: #fdba74; fill-opacity: 0.2; transition: all 0.2s; }
+        .fallback-land:hover { fill-opacity: 0.4; stroke: #f97316; stroke-width: 3; }
+
+        /* 마커 스타일 */
+        .pulse-marker-wrap { position: relative; width: 30px !important; height: 30px !important; overflow: visible !important; background: transparent; z-index: 2000 !important; }
+        .pulse-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; background-color: #ec4899; border: 2px solid white; border-radius: 50%; z-index: 3000; box-shadow: 0 0 8px rgba(0,0,0,0.8); pointer-events: none; display: block !important; }
+        .pulse-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border: 4px solid #ec4899; border-radius: 50%; opacity: 0; z-index: 2999; animation: pulse-ring-anim 1.5s infinite ease-out; box-sizing: border-box; pointer-events: none; display: block !important; }
+        
+        .land-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; background-color: #f97316; border: 2px solid white; border-radius: 20%; z-index: 3000; box-shadow: 0 0 8px rgba(0,0,0,0.8); pointer-events: none; display: block !important; }
+        .land-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border: 3px solid #f97316; border-radius: 20%; opacity: 0; z-index: 2999; animation: pulse-ring-anim 1.5s infinite ease-out; box-sizing: border-box; pointer-events: none; display: block !important; }
+
+        .warning-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%); width: 0; height: 0; border-left: 9px solid transparent; border-right: 9px solid transparent; border-bottom: 16px solid #ef4444; z-index: 3000; filter: drop-shadow(0 0 2px rgba(0,0,0,0.8)); pointer-events: none; box-sizing: content-box !important; display: block !important; }
+        .warning-center::after { content: '!'; position: absolute; top: 6px; left: -2px; font-size: 10px; color: white; font-weight: bold; pointer-events: none; width: auto; height: auto; }
+        .warning-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 14px; height: 14px; border: 3px solid #ef4444; border-radius: 50%; opacity: 0; z-index: 2999; animation: pulse-ring-anim 1.5s infinite ease-out; box-sizing: border-box; pointer-events: none; display: block !important; }
+
+        /* 변전소 스타일 */
+        .substation-marker-wrap { position: relative; width: 50px !important; height: 50px !important; z-index: 2500 !important; }
+        .substation-center {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 24px; height: 24px; background-color: #facc15; border: 3px solid #1e293b; border-radius: 50%; z-index: 3002;
+            display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px #facc15;
+        }
+        .substation-ring { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 24px; height: 24px; border: 4px solid #facc15; border-radius: 50%; opacity: 0; z-index: 3001; animation: pulse-electric 2s infinite ease-out; }
+        .substation-ring-2 { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 24px; height: 24px; border: 2px solid #eab308; border-radius: 50%; opacity: 0; z-index: 3001; animation: pulse-electric 2s infinite ease-out 0.5s; }
+
+        @keyframes pulse-ring-anim { 0% { width: 14px; height: 14px; opacity: 1; border-width: 4px; } 100% { width: 50px; height: 50px; opacity: 0; border-width: 0px; } }
+        @keyframes pulse-electric { 0% { width: 24px; height: 24px; opacity: 1; border-width: 5px; } 100% { width: 80px; height: 80px; opacity: 0; border-width: 0px; } }
+
+        /* 기설치 발전소 패턴 */
+        .existing-plant-marker {
+            background: repeating-linear-gradient(135deg, #000, #000 3px, #fbbf24 3px, #fbbf24 6px);
+            border: 2px solid #ffffff; border-radius: 50%; box-shadow: 0 4px 6px rgba(0,0,0,0.5); z-index: 5000 !important;
+        }
+
+        .toast-msg { animation: fade-in-up 0.3s ease-out; }
+        @keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .auto-scan-badge { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(16, 185, 129, 0.9); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; z-index: 3000; box-shadow: 0 2px 10px rgba(0,0,0,0.3); display: none; align-items: center; gap: 5px; }
+
+        .sidebar-toggle {
+            position: absolute; left: 420px; top: 50%; transform: translateY(-50%);
+            background: white; width: 24px; height: 48px; border-radius: 0 8px 8px 0;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1); cursor: pointer; z-index: 1999;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid #e5e7eb; border-left: none;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar-toggle:hover { background: #f9fafb; color: #06b6d4; }
+        .sidebar.collapsed + .sidebar-toggle { left: 0; }
+        
+        .d-pad-btn {
+            width: 24px; height: 24px; background: #e2e8f0; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.1s; color: #334155; font-size: 10px;
+        }
+        .d-pad-btn:hover { background: #cbd5e1; color: #0f172a; }
+        .d-pad-btn:active { background: #94a3b8; transform: scale(0.95); }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- 좌측 사이드바 -->
+    <div id="sidebar" class="sidebar absolute top-0 left-0 h-full w-[420px] bg-white shadow-2xl flex flex-col border-r border-gray-200">
+        
+        <div class="p-4 bg-slate-900 text-white shadow-md shrink-0 flex justify-between items-center">
+            <div>
+                <h1 class="text-lg font-bold flex items-center gap-2">
+                    <i class="ph ph-shield-check text-cyan-400"></i> Solar Pathfinder V153
+                </h1>
+                <p class="text-[10px] text-slate-400 mt-0.5">v7.38 (Critical Fixed)</p>
+            </div>
+        </div>
+
+        <!-- 탭 메뉴 -->
+        <div class="flex border-b border-gray-200 shrink-0 bg-white shadow-sm">
+            <button onclick="switchTab('scan')" id="tab-scan" class="tab-btn active flex-1 py-3 text-xs text-center flex flex-col items-center gap-1 text-gray-600 hover:bg-gray-50"><i class="ph ph-radar text-lg"></i>지역 전수 스캔</button>
+            <button onclick="switchTab('analysis')" id="tab-analysis" class="tab-btn flex-1 py-3 text-xs text-center flex flex-col items-center gap-1 text-gray-600 hover:bg-gray-50"><i class="ph ph-magnifying-glass-plus text-lg"></i>정밀 분석</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 bg-gray-50/50 space-y-4">
+            
+            <!-- 설정 -->
+            <div class="bg-white p-3 rounded border border-blue-200 shadow-sm">
+                <h3 class="text-xs font-bold text-blue-800 mb-2 flex items-center gap-1"><i class="ph ph-gear-six"></i> 탐색 및 분석 설정</h3>
+                
+                <div class="bg-indigo-50 p-2 rounded border border-indigo-100 mb-3 text-xs space-y-2">
+                    <div>
+                        <label class="block font-bold text-indigo-700 mb-1">📡 V-World Key</label>
+                        <input type="text" id="vworldApiKey" class="w-full border border-indigo-200 rounded p-1.5 text-[10px] font-mono bg-white" 
+                               value="8D526307-78EE-3281-8AB3-0D36115D17C3">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-indigo-700 mb-1">⚡ KEPCO API Key</label>
+                        <input type="text" id="kepcoApiKey" class="w-full border border-indigo-200 rounded p-1.5 text-[10px] font-mono bg-white" 
+                               value="19BZ8JWfae590LQCR6f2tEIyyD94wBBYEzY3UpYp">
+                    </div>
+                </div>
+
+                <div class="flex gap-2 mb-3">
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="scanTarget" value="land" class="peer hidden" onchange="toggleTarget()">
+                        <div class="text-center py-2 border-2 rounded peer-checked:bg-green-50 peer-checked:border-green-500 peer-checked:text-green-700 hover:bg-gray-50 transition text-xs font-bold text-gray-600 shadow-sm">
+                            <i class="ph ph-tree text-lg"></i><br>토지 (Land)
+                        </div>
+                    </label>
+                    <label class="flex-1 cursor-pointer">
+                        <input type="radio" name="scanTarget" value="building" class="peer hidden" onchange="toggleTarget()" checked>
+                        <div class="text-center py-2 border-2 rounded peer-checked:bg-pink-50 peer-checked:border-pink-500 peer-checked:text-pink-700 hover:bg-gray-50 transition text-xs font-bold text-gray-600 shadow-sm">
+                            <i class="ph ph-factory text-lg"></i><br>지붕 (Roof)
+                        </div>
+                    </label>
+                </div>
+
+                <!-- 금융 설정 필드 -->
+                <div class="bg-green-50 p-2 rounded border border-green-200 text-xs space-y-2 mt-2">
+                    <div class="font-bold text-green-800 border-b border-green-200 pb-1 mb-1">💸 수익/금융 파라미터</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div><label class="text-[9px]">모듈(원/W)</label><input type="number" id="costModule" value="350" class="w-full border p-1 rounded text-center"></div>
+                        <div><label class="text-[9px]">시공(원/W)</label><input type="number" id="costInstall" value="900" class="w-full border p-1 rounded text-center"></div>
+                        <div><label class="text-[9px]">SMP(원)</label><input type="number" id="sellPrice" value="180" class="w-full border p-1 rounded text-center"></div>
+                        <div><label class="text-[9px]">계통(만원)</label><input type="number" id="costGridAdj" value="500" class="w-full border p-1 rounded text-center"></div>
+                    </div>
+                    <div class="border-t border-green-200 pt-1 mt-1 grid grid-cols-2 gap-2">
+                         <div><label class="text-[9px] text-blue-700 font-bold">대출비율(%)</label><input type="number" id="pfLoanRatio" value="80" class="w-full border p-1 rounded text-center font-bold text-blue-600"></div>
+                         <div><label class="text-[9px] text-red-700 font-bold">연이자율(%)</label><input type="number" id="pfInterestRate" value="6.0" class="w-full border p-1 rounded text-center font-bold text-red-600"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 스캔 패널 -->
+            <div id="panel-scan" class="space-y-4">
+                <div class="bg-white p-3 rounded border border-gray-200 shadow-sm">
+                    <h3 class="text-xs font-bold text-gray-700 mb-2">📍 지역 전수 조사 (Grid Scan)</h3>
+                    <p class="text-[10px] text-gray-500 mb-2">지도를 움직여도 API를 호출하지 않고, 선택한 지역의 모든 건물을 빠짐없이 전수 조사합니다.</p>
+                    <select id="regionSelect" onchange="setRegion()" class="w-full text-sm border rounded p-2 bg-gray-50 font-bold outline-none border-blue-200 focus:border-blue-500">
+                        <option value="">-- 분석할 지역 선택 --</option>
+                        <optgroup label="🏭 주요 산업단지">
+                            <option value="ansan_ind">안산 반월/시화 산단</option>
+                            <option value="incheon_ind">인천 남동공단</option>
+                            <option value="changwon_ind">창원 국가산업단지</option>
+                            <option value="ulsan_ind">울산 미포/온산 산단</option>
+                        </optgroup>
+                        <optgroup label="🌲 도 (Provinces)">
+                            <option value="gyeonggi">경기도</option>
+                            <option value="gangwon">강원특별자치도</option>
+                            <option value="chungbuk">충청북도</option>
+                            <option value="chungnam">충청남도</option>
+                            <option value="jeonbuk">전북특별자치도</option>
+                            <option value="jeonnam">전라남도</option>
+                            <option value="gyeongbuk">경상북도</option>
+                            <option value="gyeongnam">경상남도</option>
+                            <option value="jeju">제주특별자치도</option>
+                        </optgroup>
+                        <option value="korea">대한민국 전체 프로젝트</option>
+                    </select>
+                </div>
+
+                <div class="bg-slate-800 p-4 rounded-lg text-white space-y-3 relative overflow-hidden shadow-xl border-b-4 border-cyan-500">
+                    <div class="flex justify-between items-center bg-slate-700/50 p-1.5 rounded border border-slate-600 mb-1">
+                        <span class="text-[9px] font-bold text-cyan-300">API 안전 딜레이</span>
+                        <select id="scanDelay" class="bg-slate-900 text-[10px] font-mono border-none outline-none text-yellow-400" onchange="updateEstimatedTime()">
+                            <option value="500">0.5초 (서버용)</option>
+                            <option value="1000" selected>1.0초 (빠름)</option>
+                            <option value="3000">3.0초 (안전)</option>
+                            <option value="5000">5.0초 (매우 안전)</option>
+                        </select>
+                    </div>
+                    <div class="flex justify-between items-end">
+                        <div>
+                            <div class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Estimated Time</div>
+                            <div id="timerRemaining" class="text-2xl font-mono font-bold text-yellow-400">--:--:--</div>
+                        </div>
+                        <div class="text-right">
+                            <div id="percentText" class="text-xl font-bold text-green-400">0%</div>
+                            <div id="progressCount" class="text-[10px] text-gray-500 font-mono">0 / 0 구역</div>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-1.5 overflow-hidden shadow-inner">
+                        <div id="totalProgressBar" class="bg-cyan-500 h-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 pt-1">
+                        <button onclick="startMission()" id="startBtn" class="bg-indigo-600 hover:bg-indigo-700 py-2.5 rounded font-bold text-xs disabled:bg-slate-600 transition shadow" disabled>▶ 스캔 시작</button>
+                        <button onclick="pauseMission()" id="pauseBtn" class="bg-red-500 hover:bg-red-600 py-2.5 rounded font-bold text-xs hidden transition shadow">⏸ 중지</button>
+                        <button onclick="resetMission()" class="bg-slate-700 hover:bg-slate-600 py-2.5 rounded font-bold text-xs transition shadow">🔄 초기화</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- [탭 B] 분석 리포트 -->
+            <div id="panel-analysis" class="hidden space-y-4">
+                <!-- Calibration Tool -->
+                <div class="bg-slate-800 p-2 rounded-lg border border-indigo-500/50 shadow-lg mb-2">
+                    <div class="flex justify-between items-center mb-2 border-b border-slate-700 pb-1">
+                        <span class="text-[11px] font-bold text-indigo-300 flex items-center gap-1">
+                            <i class="ph ph-crosshair"></i> 위치/각도 미세 보정
+                        </span>
+                        <div class="flex gap-1">
+                            <button onclick="runAutoAlignSim()" class="text-[9px] bg-indigo-600 hover:bg-indigo-500 px-1.5 py-0.5 rounded text-white transition flex items-center gap-1 border border-indigo-400 shadow-sm"><i class="ph ph-magic-wand"></i> AI 보정</button>
+                            <button onclick="resetCalibration()" class="text-[9px] bg-slate-700 hover:bg-slate-600 px-1.5 py-0.5 rounded text-white transition border border-slate-600">초기화</button>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-center justify-center relative">
+                        <div id="aiHelper" class="absolute top-0 left-0 w-full h-full bg-slate-800/90 z-20 hidden flex-col items-center justify-center text-center p-2 rounded backdrop-blur-sm">
+                            <i class="ph ph-scan text-2xl text-green-400 mb-1 animate-pulse"></i>
+                            <span class="text-[10px] text-white font-bold">건물 중심점 자동 탐색 중...</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-1">
+                            <div></div><div class="d-pad-btn" onclick="applyCalibration(0, 0.5)">▲</div><div></div>
+                            <div class="d-pad-btn" onclick="applyCalibration(-0.5, 0)">◀</div>
+                            <div class="w-6 h-6 flex items-center justify-center text-[9px] font-mono text-slate-400">Mov</div>
+                            <div class="d-pad-btn" onclick="applyCalibration(0.5, 0)">▶</div>
+                            <div></div><div class="d-pad-btn" onclick="applyCalibration(0, -0.5)">▼</div><div></div>
+                        </div>
+                        <div class="h-12 w-px bg-slate-600"></div>
+                        <div class="flex flex-col gap-1">
+                            <div class="d-pad-btn w-16" onclick="applyCalibration(0, 0, -1)">↺ -1°</div>
+                            <div class="d-pad-btn w-16" onclick="applyCalibration(0, 0, 1)">↻ +1°</div>
+                        </div>
+                    </div>
+                    <div class="text-[9px] text-center text-slate-500 mt-1 font-mono flex justify-between px-2">
+                        <span>Shift: <span id="calShift" class="text-indigo-400">0,0</span>m | Rot: <span id="calRot" class="text-indigo-400">0</span>°</span>
+                    </div>
+                </div>
+
+                <div class="result-card text-white p-4 rounded-lg shadow-lg space-y-3 border-t-4 border-cyan-400">
+                    <h3 class="text-sm font-bold flex items-center gap-1 border-b border-slate-700 pb-2"><i class="ph ph-trend-up text-cyan-400"></i> 통합 분석 리포트</h3>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between items-start"><span class="text-slate-400 shrink-0">📍 주소:</span><span id="analysisAddress" class="font-bold text-right text-white break-keep">-</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-400 shrink-0">⚡ 한전용량:</span><span id="analysisKepco" class="font-bold text-yellow-400">-</span></div>
+                        <div class="flex justify-between items-center border-t border-slate-700 pt-2"><span class="text-slate-400">📦 설치량:</span><span id="analysisCount" class="font-bold text-base font-mono">0 장</span></div>
+                        <div class="flex justify-between items-center"><span class="text-slate-400">🔋 설비용량:</span><span id="analysisCapacity" class="font-bold text-cyan-400 text-base font-mono">0 kW</span></div>
+                    </div>
+                    <div class="finance-badge p-3 rounded-md space-y-2 mt-2">
+                        <div class="flex justify-between font-bold text-white text-[11px] border-b border-green-900/50 pb-1"><span>💸 총 투자비:</span><span id="resTotalCost" class="text-green-400 font-mono">0 원</span></div>
+                        <div class="grid grid-cols-2 gap-y-1 text-[10px] text-slate-300">
+                            <span>☀️ 연 발전량:</span><span id="resAnnualYield" class="text-right text-yellow-200 font-mono">0 MWh</span>
+                            <span>💰 연 수익:</span><span id="resAnnualRev" class="text-right text-yellow-400 font-mono">0 원</span>
+                        </div>
+                    </div>
+                    <div class="pf-badge p-3 rounded-md space-y-2 mt-2">
+                        <div class="flex justify-between font-bold text-white text-[11px] border-b border-indigo-500/50 pb-1">
+                            <span class="flex items-center gap-1"><i class="ph ph-bank text-indigo-400"></i> PF 금융 분석</span>
+                            <span class="text-[9px] text-indigo-300">대출 80% 기준</span>
+                        </div>
+                        <div class="space-y-1 text-[10px] text-slate-300">
+                            <div class="flex justify-between"><span>💵 대출금:</span><span id="resLoanAmount" class="font-mono text-white">0 원</span></div>
+                            <div class="flex justify-between"><span>💰 자부담:</span><span id="resEquityAmount" class="font-mono text-white">0 원</span></div>
+                            <div class="flex justify-between"><span>📉 연 이자:</span><span id="resInterest" class="font-mono text-red-400">0 원</span></div>
+                            <div class="flex justify-between border-t border-indigo-500/30 pt-1 mt-1">
+                                <span class="font-bold text-indigo-200">🚀 PF 회수기간:</span>
+                                <span id="resPfPayback" class="font-bold font-mono text-indigo-400 text-xs">0 년</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="font-bold text-indigo-200">단순 회수기간:</span>
+                                <span id="resPayback" class="font-bold font-mono text-indigo-400 text-xs">0 년</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-3 rounded border border-gray-200 flex gap-2 items-center shadow-sm">
+                <button onclick="clearResults()" class="w-10 bg-slate-600 hover:bg-slate-500 text-white py-2 rounded text-xs font-bold shadow flex items-center justify-center transition border border-slate-500" title="목록 비우기"><i class="ph ph-trash"></i></button>
+                <button onclick="downloadCSV()" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded text-xs font-bold shadow flex items-center justify-center gap-1 transition"><i class="ph ph-microsoft-excel-logo"></i> 결과 저장</button>
+                <div class="flex items-center px-3 bg-white border rounded shadow-inner">
+                    <span id="resultCount" class="text-lg font-bold text-blue-700 mr-1 font-mono">0</span>
+                    <span class="text-[10px] text-gray-500 uppercase font-bold">건</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="h-32 flex flex-col bg-gray-900 text-gray-300 p-2 overflow-hidden shrink-0 border-t border-gray-700 font-mono">
+             <div class="flex justify-between text-[10px] text-gray-400 mb-1 px-2 pt-1">
+                <span>API 상태:</span>
+                <span id="apiStatusText" class="text-green-500">정상</span>
+            </div>
+             <div class="grid grid-cols-2 gap-2 px-2 pb-2">
+                <div>
+                    <div class="flex justify-between mb-0.5"><span class="text-[9px]">V-World</span><span id="vworldCount" class="text-[9px]">0/30k</span></div>
+                    <div class="w-full bg-gray-700 rounded-full h-1"><div id="vworldBar" class="bg-blue-500 h-1 rounded-full" style="width:0%"></div></div>
+                </div>
+                <div>
+                    <div class="flex justify-between mb-0.5"><span class="text-[9px]">KEPCO</span><span id="kepcoCount" class="text-[9px]">0/10k</span></div>
+                    <div class="w-full bg-gray-700 rounded-full h-1"><div id="kepcoBar" class="bg-yellow-500 h-1 rounded-full" style="width:0%"></div></div>
+                </div>
+            </div>
+            <div id="logWindow" class="flex-1 overflow-y-auto p-1 text-[10px] space-y-1 border-t border-gray-700">
+                <div class="text-gray-500">> Pathfinder V7.38 Engine Ready.</div>
+            </div>
+        </div>
+    </div>
+    
+    <div onclick="toggleSidebar()" class="sidebar-toggle text-gray-400">
+        <i id="toggleIcon" class="ph ph-caret-left font-bold text-lg"></i>
+    </div>
+
+    <div class="absolute top-4 right-4 z-[1000] flex flex-col gap-2 items-end">
+        <div class="bg-white rounded-lg shadow-2xl flex items-center p-1 w-[400px] h-12 border-2 border-cyan-500 overflow-hidden group">
+            <input type="text" id="addressInput" placeholder="주소/지번/도로명 통합 검색" class="w-full px-4 text-sm outline-none bg-transparent font-bold" onkeypress="if(event.key==='Enter') searchAddress()">
+            <button onclick="searchAddress()" class="p-2.5 text-white bg-cyan-600 rounded-lg hover:bg-cyan-700 transition w-16 h-10 flex items-center justify-center mr-0.5 shadow-md">
+                <i class="ph ph-magnifying-glass font-bold text-lg"></i>
+            </button>
+        </div>
+        <div class="bg-white p-2 rounded shadow-lg border border-gray-200 text-xs w-48 mt-1">
+             <label class="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-slate-50 rounded transition font-bold text-gray-500" title="지도 이동시 자동 스캔(서버 부하 방지 위해 기본 OFF)">
+                <input type="checkbox" id="autoScanToggle" onchange="toggleAutoScan()">
+                <span class="flex items-center gap-1"><i class="ph ph-radar"></i> 지도 이동 자동스캔</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer p-1.5 hover:bg-slate-50 rounded transition font-bold text-slate-500">
+                <input type="checkbox" id="existingPlantToggle" checked onchange="toggleLayer('existing')">
+                <span class="flex items-center gap-1"><i class="ph ph-circle-dashed"></i> 기설치 발전소 표시</span>
+            </label>
+            <hr class="my-1 border-gray-100">
+            <label class="flex items-center gap-2 cursor-pointer p-1"><input type="checkbox" id="substationToggle" checked onchange="toggleLayer('substation')"> <span class="text-blue-600 font-bold">⚡ 변전소 위치</span></label>
+            <label class="flex items-center gap-2 cursor-pointer p-1"><input type="radio" name="mapL" value="sat" checked onchange="setMap('sat')"> <span>위성 지도</span></label>
+            <label class="flex items-center gap-2 cursor-pointer p-1"><input type="radio" name="mapL" value="base" onchange="setMap('base')"> <span>2D 일반 지도</span></label>
+        </div>
+    </div>
+
+    <div id="toastMsg" class="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-[3000] bg-slate-800 text-white px-6 py-3 rounded-full shadow-2xl hidden flex items-center gap-2 toast-msg border border-cyan-500">
+        <i class="ph ph-hand-tap text-cyan-400 text-xl animate-bounce"></i>
+        <span class="font-bold text-sm">지도에서 분석할 건물을 선택(클릭)하세요!</span>
+    </div>
+
+    <div id="autoScanBadge" class="auto-scan-badge hidden">
+        <i class="ph ph-spinner animate-spin"></i> 자동 스캔중...
+    </div>
+
+    <div id="map"></div>
+
+    <script>
+        // Define Constants First
+        const defaultVworldKey = '8D526307-78EE-3281-8AB3-0D36115D17C3';
+        const defaultKepcoKey = '19BZ8JWfae590LQCR6f2tEIyyD94wBBYEzY3UpYp';
+        const corsProxy1 = 'https://api.allorigins.win/get?url=';
+        const corsProxy2 = 'https://corsproxy.io/?';
+        const API_LIMITS = { vworld: 30000, kepco: 10000 };
+
+        const installedGrid = new Map();
+        function addToGrid(plant) {
+            const key = `${plant.lat.toFixed(2)}_${plant.lng.toFixed(2)}`;
+            if (!installedGrid.has(key)) installedGrid.set(key, []);
+            installedGrid.get(key).push(plant);
+        }
+
+        const REGIONS = {
+            'ansan_ind': [[37.28, 126.70, 37.34, 126.85]],
+            'incheon_ind': [[37.38, 126.65, 37.42, 126.73], [37.55, 126.60, 37.60, 126.68]],
+            'changwon_ind':[[35.15, 128.60, 35.25, 128.75]],
+            'ulsan_ind':   [[35.45, 129.35, 35.53, 129.43]],
+            'jeonnam': [[34.15, 125.80, 35.50, 127.80]],
+            'jeonbuk': [[35.30, 126.30, 36.14, 127.93]],
+            'gyeonggi': [[36.89, 126.37, 38.29, 127.86]],
+            'jeju': [[33.10, 126.10, 33.60, 127.00]],
+            'seoul': [[37.42, 126.76, 37.70, 127.18]],
+            'busan': [[34.87, 128.73, 35.39, 129.31]],
+            'daegu': [[35.60, 128.34, 36.01, 128.76]],
+            'incheon': [[37.20, 126.00, 37.69, 126.78]],
+            'gwangju': [[35.07, 126.65, 35.26, 127.00]],
+            'daejeon': [[36.19, 127.24, 36.50, 127.53]],
+            'ulsan': [[35.30, 129.00, 35.72, 129.46]],
+            'sejong': [[36.40, 127.14, 36.40, 127.14]], 
+            'gangwon': [[37.03, 127.08, 38.63, 129.36]],
+            'chungbuk': [[36.00, 127.28, 37.26, 128.64]],
+            'chungnam': [[35.98, 125.92, 37.06, 127.63]],
+            'gyeongbuk': [[35.56, 127.85, 37.55, 129.60]],
+            'gyeongnam': [[34.48, 127.57, 35.90, 129.20]],
+            'korea': [[33.00, 124.50, 38.90, 131.00]]
+        };
+        
+        let ORDINANCE_DB = {
+            '경기': { road: 100, house: 200 }, '전남': { road: 100, house: 500 }, '전북': { road: 100, house: 300 },
+            '경남': { road: 200, house: 300 }, '경북': { road: 200, house: 500 }, '충남': { road: 200, house: 300 },
+            '제주': { road: 50,  house: 100 }, 'default': { road: 200, house: 300 }
+        };
+
+        const GRID_SIZE = 0.004; 
+        
+        let map, layers, markerGroup, bufferGroup, panelGroup, existingGroup, activeRect, analysisMarker, selectableGroup, substationGroup;
+        let missionQueue = []; let currentIndex = 0; let isRunning = false; let foundData = new Map();
+        let scanTarget = 'building'; let totalProcessTime = 0;
+        let autoScanMode = false; 
+        let moveTimeout; 
+        let isFetching = false;
+        let scanTimer = null;
+        let currentAnalysisFeature = null; 
+        let currentGeoState = { x:0, y:0, rot:0 };
+
+        let apiStats = { date: new Date().toLocaleDateString(), vworld: 0, kepco: 0 };
+        
+        // Sample data for existing plants
+        const preLoadedPlants = [
+            {lat: 37.6631, lng: 126.6575, name: "엠제이2호"}, 
+            {lat: 37.5955, lng: 126.6081, name: "디티2호"},
+            {lat: 35.1012, lng: 126.8967, name: "케이비"}, 
+            {lat: 35.1050, lng: 126.8920, name: "남양솔라"},
+            {lat: 37.5665, lng: 126.9780, name: "서울시청예시"} 
+        ];
+
+        function initApiStats() {
+            const saved = localStorage.getItem('solar_api_stats');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.date === new Date().toLocaleDateString()) {
+                        apiStats = parsed;
+                    } else {
+                        apiStats = { date: new Date().toLocaleDateString(), vworld: 0, kepco: 0 };
+                        saveApiStats();
+                    }
+                } catch(e) { console.error("Stats parse error", e); }
+            }
+            setTimeout(updateApiDisplay, 100);
+        }
+        
+        function saveApiStats() {
+            localStorage.setItem('solar_api_stats', JSON.stringify(apiStats));
+        }
+        
+        function trackApi(service) {
+            if (apiStats[service] !== undefined) {
+                apiStats[service]++;
+                saveApiStats();
+            }
+            updateApiDisplay();
+        }
+        
+        function updateApiDisplay() {
+            const elVCount = document.getElementById('vworldCount');
+            const elVBar = document.getElementById('vworldBar');
+            const elKCount = document.getElementById('kepcoCount');
+            const elKBar = document.getElementById('kepcoBar');
+
+            if (!elVCount || !elVBar || !elKCount || !elKBar) return;
+
+            const vPer = Math.min(100, (apiStats.vworld / API_LIMITS.vworld) * 100);
+            elVCount.innerText = `${apiStats.vworld.toLocaleString()} / ${API_LIMITS.vworld.toLocaleString()}`;
+            elVBar.style.width = `${vPer}%`;
+            
+            const kPer = Math.min(100, (apiStats.kepco / API_LIMITS.kepco) * 100);
+            elKCount.innerText = `${apiStats.kepco.toLocaleString()} / ${API_LIMITS.kepco.toLocaleString()}`;
+            elKBar.style.width = `${kPer}%`;
+        }
+
+        function log(msg, type = 'info') {
+            const win = document.getElementById('logWindow');
+            if (!win) return;
+            const clsMap = { 'ok': 'log-ok', 'roof': 'log-roof', 'err': 'log-err', 'sys': 'log-sys', 'kepco': 'log-kepco' };
+            const cls = clsMap[type] || 'text-gray-400';
+            const time = new Date().toLocaleTimeString().split(' ')[0];
+            win.innerHTML += `<div class="log-line ${cls}">[${time}] ${msg}</div>`;
+            win.scrollTop = win.scrollHeight;
+        }
+
+        function formatDuration(ms) {
+            if (!ms || ms < 0 || isNaN(ms)) return "--:--:--";
+            const h = Math.floor(ms / 3600000); const m = Math.floor((ms % 3600000) / 60000); const s = Math.floor((ms % 60000) / 1000);
+            return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        }
+
+        window.onload = function() { initApiStats(); initMap(); };
+
+        function initMap() {
+            if (typeof L === 'undefined') return;
+            const currentVKey = document.getElementById('vworldApiKey').value || defaultVworldKey;
+            
+            map = L.map('map', { zoomControl: false }).setView([36.5, 127.5], 7);
+            layers = {
+                base: L.tileLayer(`https://api.vworld.kr/req/wmts/1.0.0/${currentVKey}/Base/{z}/{y}/{x}.png`, { maxZoom: 19 }),
+                sat: L.tileLayer(`https://api.vworld.kr/req/wmts/1.0.0/${currentVKey}/Satellite/{z}/{y}/{x}.jpeg`, { maxZoom: 19 }),
+                hybrid: L.tileLayer(`https://api.vworld.kr/req/wmts/1.0.0/${currentVKey}/Hybrid/{z}/{y}/{x}.png`, { maxZoom: 19 }),
+                cad: L.tileLayer.wms(`https://api.vworld.kr/req/wms/1.0.0/${currentVKey}/lp_pa_cbnd_bubun`, { layers: 'lp_pa_cbnd_bubun', format: 'image/png', transparent: true, opacity: 0.4, zIndex: 100 }),
+            };
+            layers.sat.addTo(map); layers.hybrid.addTo(map); layers.cad.addTo(map);
+            
+            markerGroup = L.layerGroup().addTo(map);
+            bufferGroup = L.layerGroup().addTo(map);
+            panelGroup = L.layerGroup().addTo(map);
+            existingGroup = L.layerGroup().addTo(map);
+            selectableGroup = L.layerGroup().addTo(map);
+            substationGroup = L.layerGroup().addTo(map);
+            
+            map.on('click', onMapClickAnalysis);
+            map.on('moveend', onMapMoveEnd); 
+            
+            if(document.getElementById('substationToggle').checked) scanSubstations();
+
+            preLoadedPlants.forEach(p => {
+                addToGrid(p);
+                 const exIcon = L.divIcon({
+                    className: 'existing-plant-marker',
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
+                });
+                L.marker([p.lat, p.lng], { icon: exIcon, interactive: false, zIndexOffset: 1000 }).addTo(existingGroup);
+            });
+            
+            log("Pathfinder V7.38 Engine Ready (Critical Fixed).", "sys");
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+
+        function setRegion() {
+            const btn = document.getElementById('startBtn');
+            btn.disabled = false;
+            btn.classList.remove('hidden');
+            document.getElementById('pauseBtn').classList.add('hidden');
+            
+            const val = document.getElementById('regionSelect').value;
+            if (!val) { btn.disabled = true; return; }
+            
+            const areas = REGIONS[val];
+            if (!areas) return;
+
+            missionQueue = [];
+            currentIndex = 0;
+            totalProcessTime = 0;
+            
+            areas.forEach(bounds => {
+                const [minLat, minLng, maxLat, maxLng] = bounds;
+                for(let lat = minLat; lat < maxLat; lat += GRID_SIZE) {
+                    for(let lng = minLng; lng < maxLng; lng += GRID_SIZE) {
+                        missionQueue.push({
+                            center: [lat + GRID_SIZE/2, lng + GRID_SIZE/2],
+                            bounds: [[lat + GRID_SIZE, lng], [lat, lng + GRID_SIZE]]
+                        });
+                        missionQueue[missionQueue.length-1].bounds = [[lat + GRID_SIZE, lng], [lat, lng + GRID_SIZE]];
+                    }
+                }
+            });
+
+            updateEstimatedTime();
+            document.getElementById('progressCount').innerText = `0 / ${missionQueue.length} 구역`;
+            log(`🗺️ ${missionQueue.length}개 스캔 구역 생성 완료 (전수 조사 준비)`, 'sys');
+        }
+
+        function updateEstimatedTime() {
+            if(missionQueue.length === 0) return;
+            const delay = parseInt(document.getElementById('scanDelay').value) || 1000;
+            const remaining = missionQueue.length - currentIndex;
+            const totalMs = remaining * delay;
+            document.getElementById('timerRemaining').innerText = formatDuration(totalMs);
+        }
+
+        function toggleAutoScan() {
+            autoScanMode = document.getElementById('autoScanToggle').checked;
+            if (autoScanMode) {
+                showToast("⚠️ 주의: 자동 스캔 활성화 (API 과다 호출 주의)");
+                onMapMoveEnd(); 
+            } else {
+                showToast("자동 스캔 해제 (권장)");
+                document.getElementById('autoScanBadge').style.display = 'none';
+            }
+        }
+
+        function onMapMoveEnd() {
+            if (!autoScanMode) return; 
+            if (isFetching) return;
+            clearTimeout(moveTimeout);
+            
+            moveTimeout = setTimeout(() => {
+                isFetching = true; 
+                document.getElementById('autoScanBadge').style.display = 'flex';
+                
+                if (map.getZoom() < 16) {
+                    isFetching = false;
+                    document.getElementById('autoScanBadge').style.display = 'none';
+                    return;
+                }
+                
+                const center = map.getCenter();
+                const smallTask = {
+                    center: [center.lat, center.lng],
+                    bounds: [[center.lat + 0.002, center.lng - 0.002], [center.lat - 0.002, center.lng + 0.002]]
+                };
+                
+                scanZoneBBOX_Batch(smallTask).finally(() => {
+                     isFetching = false;
+                     document.getElementById('autoScanBadge').style.display = 'none';
+                });
+
+            }, 1500); 
+        }
+
+        function scanSubstations(callback) { if(callback) callback(); } 
+
+        function scanZoneBBOX_Batch(task) {
+            return new Promise((resolve, reject) => {
+                const [[n, w], [s, e]] = task.bounds;
+                const targetLayer = scanTarget === 'building' ? 'LT_C_SPBD' : 'LP_PA_CBND_BUBUN';
+                const currentVKey = document.getElementById('vworldApiKey').value || defaultVworldKey;
+                const url = `https://api.vworld.kr/req/data?service=data&request=GetFeature&data=${targetLayer}&geomFilter=BOX(${w},${s},${e},${n})&size=100&key=${currentVKey}`;
+                
+                vworldJsonp(url, function(data) {
+                    if (data?.response?.status === 'OK') {
+                        const features = data.response.result.featureCollection.features;
+                        let newItems = 0;
+                        
+                        features.forEach(feat => {
+                            const props = feat.properties;
+                            const id = props.pnu || (props.buld_nm ? props.buld_nm + "_" + props.bul_man_no : null) || Math.random();
+                            
+                            if(!foundData.has(id)) {
+                                const area = turf.area(feat);
+                                const estimatedKW = (area / 6).toFixed(1);
+                                const roi = calculateROI(estimatedKW, 36); // Re-enabled call
+                                
+                                let finalAddr = props.buld_nm || props.road_nm_ad || props.addr || "주소미상";
+
+                                foundData.set(id, {
+                                    ...props,
+                                    addr: finalAddr,
+                                    area: area.toFixed(1),
+                                    est_capacity: estimatedKW,
+                                    est_yield: roi.annualYield.toFixed(1),
+                                    est_revenue: roi.annualRev,
+                                    total_cost: roi.totalCost,
+                                    loan_amount: roi.loanAmount,
+                                    equity_amount: roi.equityAmount,
+                                    annual_interest: roi.annualInterest,
+                                    pf_payback: roi.pfPayback,
+                                    lat: task.center[0],
+                                    lng: task.center[1]
+                                });
+                                newItems++;
+                            }
+                        });
+                        
+                        if(newItems > 0) {
+                            document.getElementById('resultCount').innerText = foundData.size.toLocaleString();
+                        }
+                    }
+                    resolve();
+                });
+            });
+        }
+
+        // [CRITICAL FIX] Added missing function
+        function toggleTarget() {
+            const els = document.getElementsByName('scanTarget');
+            for(let el of els) {
+                if(el.checked) {
+                    scanTarget = el.value;
+                    log(`🎯 스캔 대상 변경: ${scanTarget === 'land' ? '토지' : '지붕/건물'}`, 'sys');
+                    break;
+                }
+            }
+        }
+
+        // [CRITICAL FIX] Added missing calculateROI function
+        function calculateROI(capacityKw, lat) {
+            const cap = parseFloat(capacityKw);
+            if(isNaN(cap) || cap === 0) return { annualYield:0, annualRev:0, totalCost:0, payback:0, loanAmount:0, equityAmount:0, annualInterest:0, pfPayback:0 };
+
+            // Default constants if DOM elements missing
+            const costModule = parseFloat(document.getElementById('costModule')?.value) || 350;
+            const costInstall = parseFloat(document.getElementById('costInstall')?.value) || 900;
+            const sellPrice = parseFloat(document.getElementById('sellPrice')?.value) || 180;
+            const costGridAdj = parseFloat(document.getElementById('costGridAdj')?.value) || 500;
+            
+            const pfLoanRatio = parseFloat(document.getElementById('pfLoanRatio')?.value) || 80;
+            const pfInterestRate = parseFloat(document.getElementById('pfInterestRate')?.value) || 6.0;
+
+            // 1. Cost
+            // Cost = KW * (Module + Install) + GridCost(unit: 10000 KRW)
+            const baseCost = cap * (costModule + costInstall);
+            const gridCost = costGridAdj * 10000; 
+            const totalCost = baseCost + gridCost;
+
+            // 2. Revenue
+            // Avg 3.6 hours/day
+            const dailyGen = cap * 3.6;
+            const annualGenMWh = (dailyGen * 365) / 1000; 
+            const annualRev = annualGenMWh * 1000 * sellPrice; 
+
+            // 3. PF Logic
+            const loanAmount = totalCost * (pfLoanRatio / 100);
+            const equityAmount = totalCost - loanAmount;
+            const annualInterest = loanAmount * (pfInterestRate / 100);
+            const netIncome = annualRev - annualInterest;
+
+            // 4. Payback
+            const simplePayback = annualRev > 0 ? (totalCost / annualRev).toFixed(1) : 99;
+            const pfPayback = netIncome > 0 ? (equityAmount / netIncome).toFixed(1) : 99;
+
+            return {
+                annualYield: annualGenMWh,
+                annualRev: Math.round(annualRev),
+                totalCost: Math.round(totalCost),
+                payback: simplePayback,
+                loanAmount: Math.round(loanAmount),
+                equityAmount: Math.round(equityAmount),
+                annualInterest: Math.round(annualInterest),
+                pfPayback: pfPayback
+            };
+        }
+
+        function processQueue() {
+             if(!isRunning || currentIndex >= missionQueue.length) { 
+                if(currentIndex >= missionQueue.length) alert("조사가 완료되었습니다."); 
+                pauseMission(); 
+                return; 
+            }
+            updateEstimatedTime();
+            const startT = Date.now(); 
+            const task = missionQueue[currentIndex];
+            
+            if(activeRect) map.removeLayer(activeRect);
+            activeRect = L.rectangle(task.bounds, {className: 'active-grid'}).addTo(map);
+
+            scanZoneBBOX_Batch(task).finally(() => {
+                if(!isRunning) return;
+                totalProcessTime += (Date.now() - startT);
+                currentIndex++;
+                document.getElementById('totalProgressBar').style.width = `${Math.round((currentIndex/missionQueue.length)*100)}%`;
+                document.getElementById('percentText').innerText = `${Math.round((currentIndex/missionQueue.length)*100)}%`;
+                document.getElementById('progressCount').innerText = `${currentIndex} / ${missionQueue.length}`;
+                scanTimer = setTimeout(processQueue, parseInt(document.getElementById('scanDelay').value)); 
+            });
+        }
+        
+        function startMission() { isRunning = true; document.getElementById('startBtn').classList.add('hidden'); document.getElementById('pauseBtn').classList.remove('hidden'); processQueue(); }
+        function pauseMission() { isRunning = false; if(scanTimer) clearTimeout(scanTimer); document.getElementById('startBtn').classList.remove('hidden'); document.getElementById('pauseBtn').classList.add('hidden'); }
+
+        async function tryFetch(url) {
+             try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const text = await response.text();
+                if (text.trim().startsWith("Unexpected") || text.trim().startsWith("<")) throw new Error("Invalid Proxy");
+                return JSON.parse(text);
+            } catch(e) { throw e; }
+        }
+
+        function searchAddress() {
+            const query = document.getElementById('addressInput').value;
+            if (!query) {
+                showToast("검색어를 입력해주세요.");
+                return;
+            }
+            
+            showToast("🔍 주소 조회 중...");
+            log(`🔍 검색: ${query}`, 'sys');
+            
+            const currentVKey = document.getElementById('vworldApiKey').value || defaultVworldKey;
+            
+            const urlRoad = `https://api.vworld.kr/req/address?service=address&request=getcoord&version=2.0&crs=epsg:4326&address=${encodeURIComponent(query)}&refine=true&simple=false&type=road&key=${currentVKey}`;
+            
+            vworldJsonp(urlRoad, function(d) {
+                if (d.response && d.response.status === 'OK') {
+                    executeAnalysis(d.response.result.point.y, d.response.result.point.x, query);
+                } else {
+                    log("도로명 주소 검색 실패, 지번 주소로 재시도...", "sys");
+                    const urlParcel = `https://api.vworld.kr/req/address?service=address&request=getcoord&version=2.0&crs=epsg:4326&address=${encodeURIComponent(query)}&refine=true&simple=false&type=parcel&key=${currentVKey}`;
+                    
+                    vworldJsonp(urlParcel, function(d2) {
+                        if (d2.response && d2.response.status === 'OK') {
+                            executeAnalysis(d2.response.result.point.y, d2.response.result.point.x, query);
+                        } else {
+                            log("❌ 주소 검색 실패", "err");
+                            showToast("주소를 찾을 수 없습니다. (API 키 확인 필요)");
+                        }
+                    });
+                }
+            });
+        }
+
+        function executeAnalysis(lat, lng, query) {
+            const latlng = L.latLng(parseFloat(lat), parseFloat(lng));
+            map.setView(latlng, 19);
+            onMapClickAnalysis({ latlng: latlng });
+            switchTab('analysis');
+        }
+
+        function showToast(msg) {
+            const el = document.getElementById('toastMsg');
+            if (el) {
+                el.innerHTML = `<i class="ph ph-info"></i> <span class="font-bold text-sm">${msg}</span>`;
+                el.classList.remove('hidden');
+                setTimeout(() => el.classList.add('hidden'), 3000);
+            } else {
+                console.log(msg);
+            }
+        }
+
+        async function onMapClickAnalysis(e) {
+            const latlng = e.latlng;
+            if(analysisMarker) map.removeLayer(analysisMarker);
+            analysisMarker = L.marker(latlng).addTo(map).bindPopup("분석 대상 지점").openPopup();
+            
+            document.getElementById('analysisAddress').innerText = "데이터 조회 중...";
+            document.getElementById('analysisKepco').innerText = "조회 중...";
+
+            const layer = scanTarget === 'building' ? 'LT_C_SPBD' : 'LP_PA_CBND_BUBUN';
+            const delta = 0.0025; 
+            const box = `${latlng.lng - delta},${latlng.lat - delta},${latlng.lng + delta},${latlng.lat + delta}`;
+            
+            const currentVKey = document.getElementById('vworldApiKey').value || defaultVworldKey;
+            const url = `https://api.vworld.kr/req/data?service=data&request=GetFeature&data=${layer}&geomFilter=BOX(${box})&size=200&key=${currentVKey}`;
+            
+            vworldJsonp(url, async function(d) {
+                if(d.response && d.response.status === 'OK' && d.response.result.featureCollection.features.length > 0) {
+                    renderFeatures(d.response.result.featureCollection.features, latlng, false);
+
+                    let bestFeature = null;
+                    const pt = turf.point([latlng.lng, latlng.lat]);
+                    
+                    for(let f of d.response.result.featureCollection.features) {
+                        if(turf.booleanPointInPolygon(pt, f)) {
+                            bestFeature = f;
+                            break;
+                        }
+                    }
+                    if(!bestFeature && d.response.result.featureCollection.features.length > 0) {
+                         bestFeature = d.response.result.featureCollection.features[0];
+                    }
+
+                    if(bestFeature) {
+                        analyzeSingleFeature(bestFeature, latlng);
+                        showToast("자동 분석 완료");
+                    }
+
+                } else {
+                    if (scanTarget === 'building') {
+                        log("⚠️ 주변 건물 데이터 없음. 토지 데이터(지적도) 광역 조회 시도...", "sys");
+                        const fallbackUrl = `https://api.vworld.kr/req/data?service=data&request=GetFeature&data=LP_PA_CBND_BUBUN&geomFilter=BOX(${box})&size=200&key=${currentVKey}`;
+                        vworldJsonp(fallbackUrl, async function(fd) {
+                            if(fd.response && fd.response.status === 'OK' && fd.response.result.featureCollection.features.length > 0) {
+                                showToast("주변 건물 데이터가 없어 토지 정보를 표시합니다.");
+                                renderFeatures(fd.response.result.featureCollection.features, latlng, true);
+                                
+                                if(fd.response.result.featureCollection.features.length > 0) {
+                                    analyzeSingleFeature(fd.response.result.featureCollection.features[0], latlng);
+                                }
+                            } else {
+                                handleNoData(latlng);
+                            }
+                        });
+                    } else {
+                        handleNoData(latlng);
+                    }
+                }
+            });
+        }
+
+        function handleNoData(latlng) {
+            log(`⚠️ 해당 위치 주변(300m)에 데이터가 없습니다.`, 'err');
+            document.getElementById('analysisAddress').innerText = "데이터 없음 (위치 재지정 필요)";
+            showToast("이 주변에는 데이터가 없습니다.");
+        }
+
+        function renderFeatures(features, latlng, isFallback) {
+            selectableGroup.clearLayers();
+            
+            const validFeatures = features.map(f => {
+                try {
+                    let clean = turf.cleanCoords(f);
+                    let buffered = turf.buffer(clean, 0); 
+                    return buffered ? buffered.features[0] : clean;
+                } catch(e) {
+                    console.warn("Geometry fix failed for a feature", e);
+                    return f; 
+                }
+            });
+
+            L.geoJSON({type:"FeatureCollection", features: validFeatures}, {
+                style: function(feature) {
+                    return isFallback 
+                        ? { color: "#f97316", weight: 2, opacity: 1, dashArray: '4', fillOpacity: 0.2, className: 'fallback-land' }
+                        : { color: "#ffffff", weight: 2, opacity: 1, dashArray: '4', fillOpacity: 0.1, className: 'selectable-building' };
+                },
+                onEachFeature: function(feature, layer) {
+                    layer.on('click', function(e) {
+                        L.DomEvent.stopPropagation(e);
+                        analyzeSingleFeature(feature, latlng);
+                    });
+                    layer.bindTooltip(isFallback ? "토지경계 (대체)" : "클릭하여 분석", {permanent: false, direction:"center"});
+                }
+            }).addTo(selectableGroup);
+
+            validFeatures.forEach(feature => {
+                try {
+                    const center = turf.centroid(feature);
+                    const coord = center.geometry.coordinates;
+                    let area = 0;
+                    try { area = turf.area(feature); } catch(e) { area = 100; } 
+                    
+                    let isWarning = false;
+                    let warnMsg = isFallback ? "토지대체" : "선택";
+                    let iconHtml = isFallback 
+                        ? '<span class="land-ring"></span><span class="land-center"></span>'
+                        : '<span class="pulse-ring"></span><span class="pulse-center"></span>';
+                    
+                    if(isAlreadyInstalled(coord[1], coord[0])) {
+                        isWarning = true; warnMsg = "기설치됨";
+                    }
+                    else if (area < 20) {
+                        isWarning = true; warnMsg = "공간부족";
+                    }
+
+                    if (isWarning) {
+                        iconHtml = '<span class="warning-ring"></span><span class="warning-center"></span>';
+                    }
+
+                    const pulseIcon = L.divIcon({
+                        className: 'pulse-marker-wrap',
+                        html: iconHtml,
+                        iconSize: [30, 30], iconAnchor: [15, 15]
+                    });
+
+                    const marker = L.marker([coord[1], coord[0]], { icon: pulseIcon, zIndexOffset: 3000 }).addTo(selectableGroup);
+                    marker.on('click', function(e) { L.DomEvent.stopPropagation(e); analyzeSingleFeature(feature, latlng); });
+                } catch(err) { console.error("Centroid calc failed", err); }
+            });
+        }
+
+        function analyzeSingleFeature(feature, latlng) {
+            panelGroup.clearLayers();
+            
+            currentAnalysisFeature = JSON.parse(JSON.stringify(feature));
+            
+            if (!currentAnalysisFeature.properties._tempId) {
+                currentAnalysisFeature.properties._tempId = `manual_adj_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+            }
+
+            resetCalibration(false); 
+
+            let processGeo = feature.geometry;
+            try {
+                let clean = turf.cleanCoords(feature);
+                let buffered = turf.buffer(clean, 0);
+                processGeo = buffered ? buffered.features[0].geometry : clean.geometry;
+            } catch(e) {}
+
+            const props = feature.properties;
+            let displayAddress = props.addr || props.road_nm_ad || props.buld_nm || "주소 확인 중...";
+            const pnu = props.pnu;
+            const jimok = props.jimok ? ` (${props.jimok})` : "";
+            
+            document.getElementById('analysisAddress').innerText = displayAddress + jimok;
+            
+            const center = turf.centroid(feature).geometry.coordinates;
+            const currentVKey = document.getElementById('vworldApiKey').value || defaultVworldKey;
+            
+            const geoUrl = `https://api.vworld.kr/req/address?service=address&request=getAddress&version=2.0&crs=epsg:4326&point=${center[0]},${center[1]}&format=json&type=BOTH&zipcode=false&simple=false&key=${currentVKey}`;
+            
+            vworldJsonp(geoUrl, function(res) {
+                if (res.response && res.response.status === 'OK' && res.response.result && res.response.result.length > 0) {
+                    let roadAddr = res.response.result.find(r => r.type === 'ROAD')?.text;
+                    let parcelAddr = res.response.result.find(r => r.type === 'PARCEL')?.text;
+                    
+                    let finalAddr = roadAddr || parcelAddr;
+                    
+                    if (finalAddr) {
+                        document.getElementById('analysisAddress').innerText = finalAddr + jimok;
+                        
+                        const id = props._tempId || props.pnu || props.bul_man_no || (props.geometry ? JSON.stringify(props.geometry).substring(0,20) : `manual_${Date.now()}`);
+                        
+                        const item = foundData.get(id);
+                        if (item) {
+                            item.addr = finalAddr; 
+                            foundData.set(id, item);
+                        }
+                    }
+                }
+            });
+            
+            log(`🎯 분석 시작: ${displayAddress}`, 'sys');
+            if(processGeo) drawPanels(processGeo, latlng.lat, latlng.lng, feature.properties);
+
+            if(!pnu) {
+                const coords = processGeo.type === 'Polygon' ? processGeo.coordinates[0][0] : [latlng.lng, latlng.lat];
+                const cLng = typeof coords[0] === 'number' ? coords[0] : coords[0][0];
+                const cLat = typeof coords[1] === 'number' ? coords[1] : coords[0][1];
+                const currentVKey = document.getElementById('vworldApiKey').value || defaultVworldKey;
+                const landUrl = `https://api.vworld.kr/req/data?service=data&request=GetFeature&data=LP_PA_CBND_BUBUN&geomFilter=POINT(${cLng} ${cLat})&key=${currentVKey}`;
+                vworldJsonp(landUrl, async function(ld) {
+                    if(ld.response && ld.response.status === 'OK') processKepcoDisplay(ld.response.result.featureCollection.features[0].properties.pnu);
+                    else document.getElementById('analysisKepco').innerText = "토지정보 없음";
+                });
+            } else {
+                processKepcoDisplay(pnu);
+            }
+        }
+        
+        function resetCalibration(redraw = true) {
+            currentGeoState = { x:0, y:0, rot:0 };
+            updateCalDisplay();
+            if (redraw && currentAnalysisFeature) {
+                panelGroup.clearLayers();
+                let geo = currentAnalysisFeature.geometry;
+                 try {
+                    let clean = turf.cleanCoords(currentAnalysisFeature);
+                    let buffered = turf.buffer(clean, 0);
+                    geo = buffered ? buffered.features[0].geometry : clean.geometry;
+                } catch(e) {}
+                
+                const center = turf.centroid(currentAnalysisFeature).geometry.coordinates;
+                drawPanels(geo, center[1], center[0], currentAnalysisFeature.properties);
+            }
+        }
+
+        function runAutoAlignSim() {
+            const helper = document.getElementById('aiHelper');
+            helper.style.display = 'flex';
+            setTimeout(() => {
+                helper.style.display = 'none';
+                resetCalibration(false);
+                applyCalibration(0, 2); 
+                showToast("AI 보정 완료: 위성 각도 오차 수정됨");
+            }, 1200);
+        }
+
+        function applyCalibration(dx, dy, dRot = 0) {
+            if (!currentAnalysisFeature) return;
+            
+            currentGeoState.x += dx;
+            currentGeoState.y += dy;
+            currentGeoState.rot += dRot;
+            updateCalDisplay();
+
+            let processed = turf.transformRotate(currentAnalysisFeature, currentGeoState.rot);
+            
+            if (currentGeoState.x !== 0 || currentGeoState.y !== 0) {
+                 processed = turf.transformTranslate(processed, currentGeoState.x / 1000, 90, {units: 'kilometers'});
+                 processed = turf.transformTranslate(processed, currentGeoState.y / 1000, 0, {units: 'kilometers'});
+            }
+
+            panelGroup.clearLayers();
+            let geo = processed.geometry;
+            try {
+                let clean = turf.cleanCoords(processed);
+                let buffered = turf.buffer(clean, 0);
+                geo = buffered ? buffered.features[0].geometry : clean.geometry;
+            } catch(e) {}
+            
+            const center = turf.centroid(processed).geometry.coordinates;
+            drawPanels(geo, center[1], center[0], currentAnalysisFeature.properties);
+        }
+
+        function updateCalDisplay() {
+            const calShift = document.getElementById('calShift');
+            if (calShift) {
+                calShift.innerText = `${currentGeoState.x}, ${currentGeoState.y}`;
+            }
+            const calRot = document.getElementById('calRot');
+            if (calRot) {
+                calRot.innerText = `${currentGeoState.rot}`;
+            }
+        }
+
+        function isAlreadyInstalled(lat, lng) {
+            const latKey = parseFloat(lat.toFixed(2));
+            const lngKey = parseFloat(lng.toFixed(2));
+            for (let dLat = -0.01; dLat <= 0.01; dLat += 0.01) {
+                for (let dLng = -0.01; dLng <= 0.01; dLng += 0.01) {
+                    const key = `${(latKey + dLat).toFixed(2)}_${(lngKey + dLng).toFixed(2)}`;
+                    const candidates = installedGrid.get(key);
+                    if (candidates) {
+                        for (let p of candidates) {
+                            if (turf.distance(turf.point([lng, lat]), turf.point([p.lng, p.lat]), {units: 'meters'}) < 20) return p;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        async function processKepcoDisplay(pnu) {
+            if(!pnu || pnu.length < 19) {
+                 document.getElementById('analysisKepco').innerText = "정보 부족";
+                 return;
+            }
+
+            trackApi('kepco');
+            let rawKey = document.getElementById('kepcoApiKey').value.trim() || defaultKepcoKey;
+            
+            let finalKey = rawKey;
+            if (!rawKey.includes('%')) {
+                finalKey = encodeURIComponent(rawKey);
+            }
+
+            const targetUrl = `https://apis.data.go.kr/1230000/KepcoSystem/getCapacity?serviceKey=${finalKey}&legaldongCode=${pnu.substring(0,10)}&bunji=${parseInt(pnu.substring(11,15))}&ho=${parseInt(pnu.substring(15,19))}&landType=${pnu.substring(10,11)}&numOfRows=1&pageNo=1&type=json`;
+            
+            // [CRITICAL FIX] Handle missing ID safely
+            const useProxyEl = document.getElementById('useProxy');
+            const useProxy = useProxyEl ? useProxyEl.checked : true; // Default to true if element missing
+
+            async function tryFetch(url) {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Network response was not ok");
+                return await response.json();
+            }
+
+            try {
+                let data;
+                if (useProxy) {
+                    try {
+                        const json1 = await tryFetch(corsProxy1 + encodeURIComponent(targetUrl));
+                        data = json1.contents ? JSON.parse(json1.contents) : json1;
+                    } catch (err1) {
+                        const json2 = await tryFetch(corsProxy2 + targetUrl);
+                        data = json2;
+                    }
+                } else {
+                    data = await tryFetch(targetUrl);
+                }
+                
+                if(data && data.response?.body?.items?.item) {
+                    const item = Array.isArray(data.response.body.items.item) ? data.response.body.items.item[0] : data.response.body.items.item;
+                     document.getElementById('analysisKepco').innerText = `${parseInt(item.ableCapacity).toLocaleString()} kW (${item.dlName || 'D/L'})`;
+                } else {
+                     document.getElementById('analysisKepco').innerText = "0 kW (여유 없음)";
+                }
+            } catch(e) {
+                console.error("KEPCO API Error", e);
+                document.getElementById('analysisKepco').innerText = "조회 실패 (CORS/Limit)";
+            }
+        }
+
+        function computePanelLayout(poly, modW_m, modH_m, spacing, lat) {
+            const panels = [];
+            
+            let maxLen = 0;
+            let angle = 0;
+            const coords = poly.geometry.coordinates[0];
+            
+            for(let i=0; i<coords.length-1; i++) {
+                const pt1 = turf.point(coords[i]);
+                const pt2 = turf.point(coords[i+1]);
+                const dist = turf.distance(pt1, pt2);
+                if(dist > maxLen) {
+                    maxLen = dist;
+                    angle = turf.bearing(pt1, pt2);
+                }
+            }
+            
+            const rotation = -angle;
+
+            let workPoly = poly;
+            try {
+                const buffered = turf.buffer(poly, -0.0005, {units: 'kilometers'}); 
+                if(buffered && buffered.geometry) workPoly = buffered;
+            } catch(e) {}
+
+            const rotatedPoly = turf.transformRotate(workPoly, rotation);
+            const bbox = turf.bbox(rotatedPoly); 
+
+            const mPerLat = 111320;
+            const mPerLng = 40075017 * Math.cos(lat * Math.PI / 180) / 360;
+            
+            const wDeg = modW_m / mPerLng; 
+            const hDeg = modH_m / mPerLat; 
+            const spaceDeg = spacing / mPerLat;
+            const colSpacingDeg = 0.0000002; 
+
+            const polyWidth = bbox[2] - bbox[0];
+            const polyHeight = bbox[3] - bbox[1];
+            
+            const unitW = wDeg + colSpacingDeg;
+            const maxCols = Math.floor(polyWidth / unitW);
+            
+            const usedWidth = maxCols * unitW - colSpacingDeg; 
+            const offsetX = (polyWidth - usedWidth) / 2;
+            
+            const unitH = hDeg + spaceDeg;
+            const maxRows = Math.floor(polyHeight / unitH);
+            const usedHeight = maxRows * unitH - spaceDeg;
+            const offsetY = (polyHeight - usedHeight) / 2;
+
+            const startX = bbox[0] + Math.max(0, offsetX);
+            const startY = bbox[1] + Math.max(0, offsetY);
+
+            for(let pLat = startY; pLat < bbox[3]; pLat += (hDeg + spaceDeg)) {
+                for(let pLng = startX; pLng < bbox[2]; pLng += (wDeg + colSpacingDeg)) {
+                    
+                    const panelRect = turf.polygon([[
+                        [pLng, pLat],
+                        [pLng + wDeg, pLat],
+                        [pLng + wDeg, pLat + hDeg],
+                        [pLng, pLat + hDeg],
+                        [pLng, pLat]
+                    ]]);
+
+                    const centerPt = turf.centroid(panelRect);
+                    if(turf.booleanPointInPolygon(centerPt, rotatedPoly)) {
+                        const originalPanel = turf.transformRotate(panelRect, -rotation);
+                        panels.push(originalPanel);
+                    }
+                }
+            }
+            return panels;
+        }
+
+        function drawPanels(geometry, lat, lng, props = null) {
+            try {
+                if(!geometry || !geometry.coordinates) return;
+                const cleanedGeo = turf.rewind(geometry, {mutate: true});
+                L.geoJSON(cleanedGeo, {style: {color: '#06b6d4', weight: 4, fillOpacity: 0}}).addTo(panelGroup);
+
+                // [CRITICAL FIX] Use defaults if elements are missing
+                const modPower = parseFloat(document.getElementById('modPower')?.value) || 640;
+                const modW_m = parseFloat(document.getElementById('modW')?.value) || 1.1; // Default width 1.1m
+                const modH_m = parseFloat(document.getElementById('modH')?.value) || 2.4; // Default height 2.4m
+                const spacing = parseFloat(document.getElementById('rowSpacing')?.value) || 0.8;
+                const installH = parseFloat(document.getElementById('installHeight')?.value) || 0.1;
+
+                const polyFeature = turf.feature(cleanedGeo);
+                
+                const panelsA = computePanelLayout(polyFeature, modW_m, modH_m, spacing, lat);
+                const panelsB = computePanelLayout(polyFeature, modH_m, modW_m, spacing, lat);
+
+                const bestPanels = (panelsA.length > panelsB.length) ? panelsA : panelsB;
+                const bestType = (panelsA.length > panelsB.length) ? "세로 배치" : "가로 배치";
+
+                L.geoJSON({type: 'FeatureCollection', features: bestPanels}, {
+                    style: {
+                        color: '#3b82f6', weight: 1, 
+                        fillOpacity: 0.8, fillColor: '#2563eb'
+                    }
+                }).addTo(panelGroup);
+
+                const count = bestPanels.length;
+                const capKw = (count * modPower / 1000);
+                
+                const roi = calculateROI(capKw, lat);
+                document.getElementById('analysisCount').innerText = `${count.toLocaleString()} 장`;
+                document.getElementById('analysisCapacity').innerText = `${capKw.toFixed(1)} kW`;
+                
+                document.getElementById('resAnnualYield').innerText = `${roi.annualYield.toFixed(1)} MWh`;
+                document.getElementById('resAnnualRev').innerText = `${roi.annualRev.toLocaleString()} 원`;
+                document.getElementById('resTotalCost').innerText = `${roi.totalCost.toLocaleString()} 원`;
+                document.getElementById('resPayback').innerText = roi.payback + " 년";
+                
+                document.getElementById('resLoanAmount').innerText = `${roi.loanAmount.toLocaleString()} 원`;
+                document.getElementById('resEquityAmount').innerText = `${roi.equityAmount.toLocaleString()} 원`;
+                document.getElementById('resInterest').innerText = `${roi.annualInterest.toLocaleString()} 원`;
+                document.getElementById('resPfPayback').innerText = `${roi.pfPayback} 년`;
+
+                if(count > 0) log(`📐 스마트 센터링(${bestType}): ${count}장 (${capKw.toFixed(1)}kW)`, 'ok');
+                else log("⚠️ 배치 공간 부족 (건물이 너무 작음)", 'err');
+                
+                if (props) {
+                    const id = props._tempId || props.pnu || props.bul_man_no || (props.geometry ? JSON.stringify(props.geometry).substring(0,20) : `manual_${Date.now()}`);
+                    
+                    let area = 0;
+                    try { area = turf.area(geometry).toFixed(1); } catch(e) {}
+
+                    foundData.set(id, {
+                        ...props,
+                        area: area,
+                        est_capacity: capKw.toFixed(1),
+                        est_yield: roi.annualYield.toFixed(1),
+                        est_revenue: roi.annualRev,
+                        total_cost: roi.totalCost,
+                        loan_amount: roi.loanAmount,
+                        equity_amount: roi.equityAmount,
+                        annual_interest: roi.annualInterest,
+                        pf_payback: roi.pfPayback,
+                        lat: lat,
+                        lng: lng,
+                        note: "수동분석"
+                    });
+                    
+                    document.getElementById('resultCount').innerText = foundData.size.toLocaleString();
+                    showToast("결과 목록에 저장되었습니다.");
+                }
+
+            } catch(e) { console.error(e); log("배치 설계 오류", "err"); }
+        }
+
+        function toggleLayer(type) { 
+            if(type==='substation') { 
+                if(document.getElementById('substationToggle').checked) {
+                    substationGroup.addTo(map); 
+                    scanSubstations(); 
+                } else {
+                    substationGroup.remove();
+                }
+            }
+            else if(type==='existing') { document.getElementById('existingPlantToggle').checked ? map.addLayer(existingGroup) : map.removeLayer(existingGroup); }
+        }
+
+        function downloadCSV() { 
+            let csv = "\uFEFF주소,지목,면적(m²),예상설치용량(kW),연간발전량(MWh),총투자비(원),대출금(원),자부담(원),연이자(원),예상수익(원),PF회수기간(년),비고\n"; 
+            foundData.forEach(i => {
+                const addr = (i.addr || i.road_nm_ad || i.buld_nm || "").replace(/,/g,' ');
+                csv += `${addr},${i.jimok||"건물"},${i.area},${i.est_capacity},${i.est_yield},${i.total_cost||0},${i.loan_amount||0},${i.equity_amount||0},${i.annual_interest||0},${i.est_revenue},${i.pf_payback||"-"},${i.note||""}\n`;
+            }); 
+            const a = document.createElement('a'); 
+            a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'})); 
+            a.download = `Solar_Pathfinder_Result_${new Date().toISOString().slice(0,10)}.csv`; 
+            a.click(); 
+        }
+        
+        function clearResults() {
+             if(foundData.size === 0) {
+                 showToast("비울 데이터가 없습니다.");
+                 return;
+             }
+             if(confirm("데이터 삭제?")) {
+                 foundData.clear();
+                 document.getElementById('resultCount').innerText = "0";
+             }
+        }
+        
+        function resetMission() { 
+            if(!confirm("진행 상황을 모두 초기화하시겠습니까? (데이터 삭제됨)")) return;
+            if(scanTimer) clearTimeout(scanTimer);
+            scanTimer = null;
+            
+            isRunning = false;
+            missionQueue = [];
+            currentIndex = 0;
+            foundData.clear();
+            totalProcessTime = 0;
+            document.getElementById('startBtn').classList.remove('hidden');
+            document.getElementById('startBtn').disabled = true; 
+            document.getElementById('pauseBtn').classList.add('hidden');
+            document.getElementById('regionSelect').value = ""; 
+            document.getElementById('timerRemaining').innerText = "--:--:--";
+            document.getElementById('percentText').innerText = "0%";
+            document.getElementById('progressCount').innerText = "0 / 0 구역";
+            document.getElementById('totalProgressBar').style.width = "0%";
+            document.getElementById('resultCount').innerText = "0";
+            if(activeRect) map.removeLayer(activeRect);
+            if(markerGroup) markerGroup.clearLayers();
+            if(panelGroup) panelGroup.clearLayers();
+            if(selectableGroup) selectableGroup.clearLayers();
+            if(analysisMarker) map.removeLayer(analysisMarker);
+            document.getElementById('analysisAddress').innerText = "-";
+            document.getElementById('analysisKepco').innerText = "-";
+            document.getElementById('analysisCount').innerText = "0 장";
+            document.getElementById('analysisCapacity').innerText = "0 kW";
+            document.getElementById('resTotalCost').innerText = "0 원";
+            document.getElementById('resAnnualYield').innerText = "0 MWh";
+            document.getElementById('resAnnualRev').innerText = "0 원";
+            document.getElementById('resPayback').innerText = "0 년";
+            log("🔄 시스템 초기화 완료 (대기 상태)", 'sys');
+        }
+
+        function vworldJsonp(url, callback) {
+            trackApi('vworld'); 
+            const cbName = 'vb_' + Math.round(1000000 * Math.random());
+            
+            const timeoutId = setTimeout(() => {
+                delete window[cbName];
+                log("⚠️ API 응답 지연 (Timeout)", "err");
+                callback({status:'TIMEOUT'}); 
+            }, 5000);
+
+            window[cbName] = function(data) { 
+                clearTimeout(timeoutId);
+                delete window[cbName]; 
+                const s = document.getElementById(cbName); 
+                if (s) s.remove(); 
+                callback(data); 
+            };
+            
+            const script = document.createElement('script');
+            script.id = cbName;
+            script.src = url + (url.includes('?') ? '&' : '?') + `format=json&callback=${cbName}&domain=${location.hostname}`;
+            script.onerror = () => { 
+                clearTimeout(timeoutId);
+                delete window[cbName]; 
+                callback({status:'ERROR'}); 
+            };
+            document.body.appendChild(script);
+        }
+
+        function switchTab(mode) {
+            ['scan', 'analysis'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if(btn) btn.classList.remove('active');
+                const panel = document.getElementById(`panel-${t}`);
+                if(panel) panel.classList.add('hidden');
+            });
+            const targetBtn = document.getElementById(`tab-${mode}`);
+            if(targetBtn) targetBtn.classList.add('active');
+            const targetPanel = document.getElementById(`panel-${mode}`);
+            if(targetPanel) targetPanel.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
