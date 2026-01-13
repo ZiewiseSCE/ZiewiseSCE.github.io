@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="resources/css/header.css" />
     <link rel="stylesheet" href="resources/css/main_style.css" />
     <link rel="icon" href="resources/images/header/scenergy_logo_200.png" />
-    <style>
+<style>
       /* 메뉴 마우스 오버 확대 효과 */
       .menu_item {
         transition: transform 0.2s ease; /* 0.2초 동안 부드럽게 변신 */
@@ -27,8 +27,34 @@
         transform: scale(1.2); /* 1.2배 크기로 확대 */
         z-index: 100; /* 확대될 때 다른 글자 위로 올라오게 함 */
       }
-      /* (선택) 링크 글자색도 진하게 하려면 아래 주석 해제 */
-      /* .menu_item:hover a { color: #000; font-weight: bold; } */
+      
+      /* ▼▼▼▼▼ 태블릿 및 좁은 화면 대응 코드 (추가됨) ▼▼▼▼▼ */
+      
+      /* 화면 폭이 1300px 이하일 때 (일반 노트북, 가로모드 태블릿) */
+      @media screen and (max-width: 1300px) {
+        .menu_list {
+          gap: 10px !important; /* 메뉴 사이 간격을 좁힘 */
+        }
+        .menu_item {
+          font-size: 14px !important; /* 글자 크기를 조금 줄임 */
+          margin: 0 !important; /* 불필요한 여백 제거 */
+          padding: 0 5px !important; /* 메뉴 항목 간격 최소화 */
+          white-space: nowrap; /* 글자가 강제로 줄바꿈 되지 않도록 설정 */
+        }
+      }
+
+      /* 화면 폭이 1024px 이하일 때 (아이패드, 태블릿 세로) */
+      @media screen and (max-width: 1024px) {
+        .menu_item {
+          font-size: 12px !important; /* 글자 크기를 더 줄임 */
+          letter-spacing: -0.5px; /* 자간을 좁혀서 공간 확보 */
+        }
+        .brand {
+            transform: scale(0.9); /* 로고 크기도 살짝 줄여서 공간 확보 */
+            transform-origin: left center;
+        }
+      }
+      /* ▲▲▲▲▲ 여기까지 ▲▲▲▲▲ */
     </style>
   </head>
   <body oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
