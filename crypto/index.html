@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CryptoInsight Live</title>
+<link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,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">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+:root{--bg:#0a0e1a;--bg2:#111827;--card:rgba(17,24,39,0.8);--brd:rgba(255,255,255,0.06);--accent:#6366f1;--up:#10b981;--down:#ef4444}
+*{box-sizing:border-box}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:#f1f5f9;margin:0;overflow-x:hidden}
+.mono{font-family:'JetBrains Mono',monospace}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#334155;border-radius:3px}
+.glass{background:var(--card);backdrop-filter:blur(16px);border:1px solid var(--brd)}
+.pulse-dot{animation:pd 2s ease-in-out infinite}
+@keyframes pd{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,185,129,0.4)}50%{opacity:.7;box-shadow:0 0 0 6px rgba(16,185,129,0)}}
+.card-hover{transition:all .2s}
+.card-hover:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,.3)}
+.selected-coin{border-color:var(--accent)!important;background:rgba(99,102,241,.08)!important;box-shadow:0 0 20px rgba(99,102,241,.3)}
+.modal-overlay{background:rgba(0,0,0,.75);backdrop-filter:blur(8px)}
+.table-container{max-height:500px;overflow-y:auto}
+thead th{position:sticky;top:0;background:rgba(17,24,39,.98);z-index:10}
+.btn-disabled{opacity:.4;pointer-events:none}
+.fullscreen-active nav,.fullscreen-active main{max-width:100%!important}
+.fade-in{animation:fi .3s ease-out}
+@keyframes fi{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes flash-up{0%{background:rgba(16,185,129,.2)}100%{background:transparent}}
+@keyframes flash-down{0%{background:rgba(239,68,68,.2)}100%{background:transparent}}
+.flash-up{animation:flash-up 1s ease-out}.flash-down{animation:flash-down 1s ease-out}
+.compact-mode .glass{padding:.5rem!important}.compact-mode main{padding:.5rem!important;gap:.5rem!important}
+.compact-mode #top-cards-container{gap:.35rem!important}.compact-mode .card-hover{padding:.5rem!important}
+.ticker-wrap{overflow:hidden;background:rgba(0,0,0,.3);border-bottom:1px solid rgba(255,255,255,.03)}
+.ticker-track{display:flex;gap:2rem;animation:ts 60s linear infinite;width:max-content}
+.ticker-track:hover{animation-play-state:paused}
+@keyframes ts{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ticker-item{display:flex;align-items:center;gap:.35rem;white-space:nowrap;padding:4px 0;font-size:10px}
+.history-row{font-size:10px;padding:3px 8px;border-bottom:1px solid rgba(255,255,255,.03);display:flex;justify-content:space-between;align-items:center}
+.mode-btn{transition:all .15s}.mode-btn.active{background:#6366f1;color:#fff;box-shadow:0 2px 8px rgba(99,102,241,.3)}
+.mode-btn:not(.active){background:transparent;color:#64748b}
+.mode-btn:not(.active):hover{color:#e2e8f0;background:rgba(255,255,255,.05)}
+/* Loading progress bar */
+.progress-wrap{position:fixed;top:0;left:0;right:0;z-index:999;height:3px;background:rgba(0,0,0,.3);opacity:0;transition:opacity .3s;pointer-events:none}
+.progress-wrap.active{opacity:1}
+.progress-bar{height:100%;background:linear-gradient(90deg,#6366f1,#818cf8,#6366f1);background-size:200% 100%;border-radius:0 2px 2px 0;transition:width .3s ease;animation:progress-glow 1.5s ease infinite}
+@keyframes progress-glow{0%,100%{background-position:0% 0}50%{background-position:100% 0}}
+/* Loading overlay */
+.loading-overlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:998;background:rgba(10,14,26,.9);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:20px 32px;display:flex;flex-direction:column;align-items:center;gap:10px;backdrop-filter:blur(8px);min-width:280px;opacity:0;pointer-events:none;transition:opacity .3s}
+.loading-overlay.active{opacity:1;pointer-events:auto}
+.loading-spinner{width:24px;height:24px;border:2.5px solid rgba(255,255,255,.1);border-top-color:#6366f1;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+<!-- Progress Bar -->
+<div class="progress-wrap" id="progress-wrap"><div class="progress-bar" id="progress-bar" style="width:0%"></div></div>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loading-overlay">
+<div class="loading-spinner"></div>
+<p class="text-sm font-semibold text-white" id="loading-title">데이터 로딩 중</p>
+<p class="text-[11px] text-slate-400 mono" id="loading-detail">0 / 20</p>
+<div class="w-full bg-slate-800 rounded-full h-1.5 mt-1"><div class="bg-indigo-500 h-1.5 rounded-full transition-all" id="loading-inner-bar" style="width:0%"></div></div>
+<p class="text-[10px] text-slate-600 mono" id="loading-current">-</p>
+</div>
+
+<!-- Ticker -->
+<div class="ticker-wrap" id="ticker-bar"><div class="ticker-track" id="ticker-track"><span class="ticker-item text-slate-600">Loading...</span></div></div>
+
+<!-- Nav -->
+<nav class="glass sticky top-0 z-50 px-4 md:px-6 py-2 flex justify-between items-center border-b border-white/5">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 bg-gradient-to-br from-indigo-600 to-violet-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20"><i class="fa-solid fa-chart-line text-base"></i></div>
+<div><h1 class="text-base md:text-lg font-bold text-white leading-tight">CryptoInsight <span class="text-emerald-400">Live</span></h1>
+<p class="text-[9px] text-slate-500 hidden sm:block mono">Real-time Monitor</p></div>
+</div>
+
+<!-- Mode Toggle -->
+<div class="flex bg-slate-900/60 rounded-lg p-0.5 border border-white/5">
+<button onclick="switchMode('crypto')" class="mode-btn active px-3 py-1 text-[11px] font-semibold rounded-md flex items-center gap-1" id="mode-crypto"><i class="fa-brands fa-bitcoin text-[10px]"></i> 코인</button>
+<button onclick="switchMode('stock_kr')" class="mode-btn px-3 py-1 text-[11px] font-semibold rounded-md flex items-center gap-1" id="mode-stock_kr"><i class="fa-solid fa-won-sign text-[10px]"></i> KR주식</button>
+<button onclick="switchMode('stock_us')" class="mode-btn px-3 py-1 text-[11px] font-semibold rounded-md flex items-center gap-1" id="mode-stock_us"><i class="fa-solid fa-dollar-sign text-[10px]"></i> US주식</button>
+</div>
+
+<div class="flex items-center gap-1.5">
+<div class="hidden sm:flex items-center gap-1.5 bg-slate-900/60 px-2.5 py-1 rounded-lg border border-white/5" id="api-status-box">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot" id="api-status-dot"></div>
+<span class="text-[10px] text-slate-400 mono" id="api-status-text">Ready</span>
+<span class="text-[10px] text-slate-600 mono ml-0.5" id="update-countdown"></span>
+</div>
+<div class="hidden sm:flex items-center gap-1.5 bg-slate-900/60 px-2.5 py-1 rounded-lg border border-white/5">
+<span class="text-[10px] text-slate-500">USD/KRW</span>
+<span class="text-xs font-semibold text-white mono" id="nav-exchange-rate">-</span>
+</div>
+<button onclick="manualRefresh()" id="btn-refresh" class="p-2 text-slate-500 hover:text-white transition-colors rounded-lg hover:bg-white/5" title="R"><i class="fa-solid fa-arrows-rotate text-sm" id="icon-refresh"></i></button>
+<button onclick="toggleCompact()" class="p-2 text-slate-500 hover:text-white transition-colors rounded-lg hover:bg-white/5" title="C" id="btn-compact"><i class="fa-solid fa-table-cells text-sm" id="icon-compact"></i></button>
+<button onclick="toggleFullscreen()" class="p-2 text-slate-500 hover:text-white transition-colors rounded-lg hover:bg-white/5" title="F11"><i class="fa-solid fa-expand text-sm" id="icon-fullscreen"></i></button>
+<div class="text-right hidden md:block ml-1"><p class="text-xs font-medium text-slate-300 mono" id="clock">--:--:--</p><p class="text-[9px] text-slate-600 mono" id="date-display"></p></div>
+</div>
+</nav>
+
+<!-- Main -->
+<main class="flex-grow p-3 md:p-5 lg:p-6 max-w-[1600px] mx-auto w-full space-y-4" id="main-content">
+
+<!-- Favorites -->
+<section>
+<div class="flex justify-between items-center mb-3 px-0.5">
+<h2 class="text-sm font-bold text-white flex items-center gap-1.5" id="fav-title"><i class="fa-solid fa-star text-amber-400 text-xs"></i> 관심 종목</h2>
+<button onclick="openFavoritesModal()" class="text-[10px] text-slate-400 hover:text-white transition flex items-center gap-1 bg-white/5 hover:bg-indigo-600 px-2.5 py-1 rounded-md border border-white/5"><i class="fa-solid fa-pen text-[8px]"></i> 편집</button>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2.5" id="top-cards-container"><div class="col-span-full text-center text-slate-600 py-8 text-sm">Loading...</div></div>
+</section>
+
+<!-- Portfolio -->
+<section class="glass rounded-xl p-4 shadow-xl relative overflow-hidden">
+<div class="absolute -right-16 -top-16 w-48 h-48 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+<div class="flex justify-between items-center mb-4 relative z-10">
+<h2 class="text-sm font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-wallet text-indigo-400 text-xs"></i> 내 보유 자산</h2>
+<button onclick="openModal()" class="text-[10px] bg-white/5 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-md transition border border-white/5"><i class="fa-solid fa-gear text-[8px]"></i> 수정</button>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-4 relative z-10">
+<div class="lg:col-span-1 bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-lg p-4 border border-white/5 flex flex-col justify-center">
+<p class="text-slate-500 text-[10px] mb-0.5">총 평가 금액</p>
+<h3 class="text-2xl font-bold text-white tracking-tight mono" id="portfolio-total">₩0</h3>
+<div id="portfolio-pnl-container" class="flex items-center gap-1.5 text-xs mt-1"></div>
+</div>
+<div class="lg:col-span-4 grid grid-cols-1 md:grid-cols-3 gap-3" id="portfolio-list"><div class="col-span-full text-center text-slate-600 py-6 text-xs">보유 자산 없음</div></div>
+</div>
+</section>
+
+<!-- Charts -->
+<section class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+<div class="lg:col-span-2 glass rounded-xl p-4 shadow-xl">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+<div><h2 class="text-sm font-bold text-white flex items-center gap-2"><span id="chart-title-coin">-</span><span class="text-[10px] font-normal text-slate-500 bg-slate-800/80 px-2 py-0.5 rounded-full mono" id="chart-title-price">-</span></h2>
+<p class="text-[10px] text-slate-600 mt-0.5" id="chart-subtitle">가격 추이</p></div>
+<div class="flex bg-slate-900/60 rounded-lg p-0.5 border border-white/5">
+<button onclick="setTimeframe('1')" class="timeframe-btn px-2.5 py-1 text-[10px] font-medium rounded text-slate-500 hover:text-white transition" id="btn-1">1D</button>
+<button onclick="setTimeframe('7')" class="timeframe-btn px-2.5 py-1 text-[10px] font-medium rounded text-slate-500 hover:text-white transition" id="btn-7">7D</button>
+<button onclick="setTimeframe('30')" class="timeframe-btn px-2.5 py-1 text-[10px] font-medium rounded bg-indigo-600 text-white shadow" id="btn-30">1M</button>
+<button onclick="setTimeframe('365')" class="timeframe-btn px-2.5 py-1 text-[10px] font-medium rounded text-slate-500 hover:text-white transition" id="btn-365">1Y</button>
+</div></div>
+<div class="relative h-64 w-full"><canvas id="mainPriceChart"></canvas>
+<div id="chart-loading" class="absolute inset-0 flex items-center justify-center hidden"><div class="text-slate-500 text-xs flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin"></i> 로딩...</div></div>
+</div></div>
+
+<div class="glass rounded-xl p-4 shadow-xl flex flex-col" id="dominance-section">
+<h2 class="text-sm font-bold text-white mb-3" id="dominance-title">시장 점유율</h2>
+<div class="relative h-40 w-full flex-grow flex items-center justify-center"><canvas id="dominanceChart"></canvas></div>
+<div class="mt-3 grid grid-cols-3 gap-1.5 text-center" id="dominance-labels">
+<div class="bg-slate-900/50 rounded-md p-1.5 border border-white/5"><span class="text-[10px] text-slate-400">BTC</span><span class="block font-bold text-sm mono" style="color:#f7931a" id="dom-1">-%</span></div>
+<div class="bg-slate-900/50 rounded-md p-1.5 border border-white/5"><span class="text-[10px] text-slate-400">ETH</span><span class="block font-bold text-sm mono" style="color:#627eea" id="dom-2">-%</span></div>
+<div class="bg-slate-900/50 rounded-md p-1.5 border border-white/5"><span class="text-[10px] text-slate-400">Others</span><span class="block font-bold text-sm mono text-slate-400" id="dom-3">-%</span></div>
+</div></div>
+
+<div class="glass rounded-xl p-4 shadow-xl flex flex-col">
+<div class="flex justify-between items-center mb-2"><h2 class="text-sm font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-clock-rotate-left text-xs text-slate-500"></i> 변동 기록</h2>
+<button onclick="clearPriceLog()" class="text-[9px] text-slate-600 hover:text-slate-400">초기화</button></div>
+<div class="flex-grow overflow-y-auto max-h-72" id="price-log" style="scrollbar-width:thin"><p class="text-[10px] text-slate-700 text-center py-8">변동 시 자동 기록</p></div>
+<div class="mt-2 pt-2 border-t border-white/5 flex justify-between"><span class="text-[9px] text-slate-600 mono" id="log-count">0건</span><span class="text-[9px] text-slate-600 mono" id="log-session">-</span></div>
+</div>
+</section>
+
+<!-- Table -->
+<section class="glass rounded-xl overflow-hidden shadow-xl">
+<div class="p-4 border-b border-white/5 flex justify-between items-center">
+<h2 class="text-sm font-bold text-white" id="table-title">전체 목록</h2>
+<div class="flex items-center gap-2">
+<button onclick="openAddSymbolModal()" class="text-[10px] text-slate-400 hover:text-white transition flex items-center gap-1 bg-white/5 hover:bg-indigo-600 px-2.5 py-1 rounded-md border border-white/5"><i class="fa-solid fa-plus text-[8px]"></i> 종목 추가</button>
+<span class="text-[10px] text-slate-600 mono" id="total-count">-</span>
+</div>
+</div>
+<div class="table-container"><table class="w-full text-left border-collapse">
+<thead class="text-slate-500 text-[10px] uppercase tracking-wider"><tr>
+<th class="px-4 py-3 font-medium">#</th><th class="px-4 py-3 font-medium">종목</th>
+<th class="px-4 py-3 text-right font-medium">현재가</th><th class="px-4 py-3 text-right font-medium">변동</th>
+<th class="px-4 py-3 text-right font-medium">시가총액</th></tr></thead>
+<tbody id="table-body" class="text-xs divide-y divide-white/5"></tbody></table></div>
+</section>
+</main>
+
+<!-- Portfolio Modal -->
+<div id="portfolioModal" class="fixed inset-0 z-[60] flex items-center justify-center hidden">
+<div class="absolute inset-0 modal-overlay" onclick="closeModal()"></div>
+<div class="bg-slate-800 rounded-xl shadow-2xl border border-white/10 w-full max-w-2xl p-5 relative z-10 mx-4 fade-in">
+<h3 class="text-lg font-bold text-white mb-3">보유 자산 수정</h3>
+<div class="grid grid-cols-12 gap-2 text-[10px] text-slate-500 px-2 mb-1.5 uppercase tracking-wider">
+<div class="col-span-3">종목</div><div class="col-span-3">수량</div><div class="col-span-3">매수 평단</div><div class="col-span-2 text-center">단위</div><div class="col-span-1"></div></div>
+<div class="space-y-1.5 max-h-[55vh] overflow-y-auto pr-1" id="modal-inputs"></div>
+<div class="mt-4 pt-3 border-t border-white/5 flex justify-end gap-2">
+<button onclick="addPortfolioRow()" class="px-3 py-1.5 bg-white/5 text-white rounded-lg text-xs transition mr-auto hover:bg-white/10 border border-white/5">+ 추가</button>
+<button onclick="closeModal()" class="px-3 py-1.5 text-slate-400 text-xs hover:text-white">취소</button>
+<button onclick="savePortfolio()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold shadow-lg shadow-indigo-500/20">저장</button>
+</div></div></div>
+
+<!-- Favorites Modal -->
+<div id="favoritesModal" class="fixed inset-0 z-[60] flex items-center justify-center hidden">
+<div class="absolute inset-0 modal-overlay" onclick="closeFavoritesModal()"></div>
+<div class="bg-slate-800 rounded-xl shadow-2xl border border-white/10 w-full max-w-lg p-5 relative z-10 mx-4 fade-in">
+<h3 class="text-lg font-bold text-white mb-1">관심 종목 편집</h3>
+<p class="text-[10px] text-slate-500 mb-3">모니터링할 종목을 선택하세요</p>
+<div class="grid grid-cols-3 sm:grid-cols-4 gap-1.5 max-h-[50vh] overflow-y-auto pr-1" id="favorites-list"></div>
+<div class="mt-4 pt-3 border-t border-white/5 flex justify-end gap-2">
+<button onclick="closeFavoritesModal()" class="px-3 py-1.5 text-slate-400 text-xs hover:text-white">취소</button>
+<button onclick="saveFavorites()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold shadow-lg shadow-indigo-500/20">저장</button>
+</div></div></div>
+
+<!-- Add Symbol Modal -->
+<div id="addSymbolModal" class="fixed inset-0 z-[60] flex items-center justify-center hidden">
+<div class="absolute inset-0 modal-overlay" onclick="closeAddSymbolModal()"></div>
+<div class="bg-slate-800 rounded-xl shadow-2xl border border-white/10 w-full max-w-md p-5 relative z-10 mx-4 fade-in">
+<h3 class="text-lg font-bold text-white mb-1">종목 추가</h3>
+<p class="text-[10px] text-slate-500 mb-4" id="add-symbol-desc">현재 모드에 새 종목을 추가합니다</p>
+
+<!-- Crypto fields -->
+<div id="add-crypto-fields" class="space-y-2.5">
+<div><label class="text-[10px] text-slate-400 block mb-1">CoinGecko API ID <span class="text-slate-600">(예: bitcoin, ethereum, dogecoin)</span></label>
+<input type="text" id="add-crypto-apiId" class="w-full bg-slate-900/80 text-white text-xs rounded-lg p-2.5 border border-white/10 mono focus:border-indigo-500 focus:outline-none" placeholder="coingecko api id"></div>
+<div class="grid grid-cols-2 gap-2">
+<div><label class="text-[10px] text-slate-400 block mb-1">심볼</label>
+<input type="text" id="add-crypto-symbol" class="w-full bg-slate-900/80 text-white text-xs rounded-lg p-2.5 border border-white/10 mono focus:border-indigo-500 focus:outline-none" placeholder="BTC"></div>
+<div><label class="text-[10px] text-slate-400 block mb-1">이름</label>
+<input type="text" id="add-crypto-name" class="w-full bg-slate-900/80 text-white text-xs rounded-lg p-2.5 border border-white/10 mono focus:border-indigo-500 focus:outline-none" placeholder="Bitcoin"></div>
+</div>
+<div><label class="text-[10px] text-slate-400 block mb-1">색상</label>
+<div class="flex items-center gap-2"><input type="color" id="add-crypto-color" value="#6366f1" class="w-8 h-8 rounded border-0 bg-transparent cursor-pointer"><span class="text-[10px] text-slate-500 mono" id="add-crypto-color-hex">#6366f1</span></div></div>
+<div class="bg-slate-900/50 rounded-lg p-2.5 border border-white/5">
+<p class="text-[10px] text-slate-500"><i class="fa-solid fa-circle-info text-indigo-400 mr-1"></i> CoinGecko API ID는 <a href="https://www.coingecko.com" target="_blank" class="text-indigo-400 hover:underline">coingecko.com</a>에서 코인 페이지 URL의 마지막 부분입니다.<br>예: https://www.coingecko.com/en/coins/<span class="text-white">bitcoin</span></p>
+</div>
+</div>
+
+<!-- Stock KR fields -->
+<div id="add-stockkr-fields" class="space-y-2.5 hidden">
+<div><label class="text-[10px] text-slate-400 block mb-1">종목코드 <span class="text-slate-600">(예: 005930)</span></label>
+<input type="text" id="add-stockkr-code" class="w-full bg-slate-900/80 text-white text-xs rounded-lg p-2.5 border border-white/10 mono focus:border-indigo-500 focus:outline-none" placeholder="005930"></div>
+<div class="grid grid-cols-2 gap-2">
+<div><label class="text-[10px] text-slate-400 block mb-1">시장 <span class="text-slate-600">(KS/KQ)</span></label>
+<select id="add-stockkr-market" class="w-full bg-slate-900/80 text-white text-xs rounded-lg p-2.5 border border-white/10 mono focus:border-indigo-500 focus:outline-none">
+<option value="KS">KS (코스피)</option><option value="KQ">KQ (코스닥)</option></select></div>
+<div><label class="text-[10px] text-slate-400 block mb-1">종목명</label>
+<input type="text" id="add-stockkr-name" class="w-full bg-slate-900/80 text-white text-xs rounded-lg p-2.5 border border-white/10 mono focus:border-indigo-500 focus:outline-none" placeholder="삼성전자"></div>
+</div>
+<div><label class="text-[10px] text-slate-400 block mb-1">색상</label>
+<div class="flex items-center gap-2"><input type="color" id="add-stockkr-color" value="#6366f1" class="w-8 h-8 rounded border-0 bg-transparent cursor-pointer"><span class="text-[10px] text-slate-500 mono" id="add-stockkr-color-hex">#6366f1</span></div></div>
+</div>
+
+<!-- Stock US fields -->
+<div id="add-stockus-fields" class="space-y-2.5 hidden">
+<div><label class="text-[10px] text-slate-400 block mb-1">티커 심볼 <span class="text-slate-600">(예: AAPL, MSFT)</span></label>
+<input type="text" id="add-stockus-symbol" class="w-full bg-slate-900/80 text-white text-xs rounded-lg p-2.5 border border-white/10 mono focus:border-indigo-500 focus:outline-none" placeholder="AAPL"></div>
+<div><label class="text-[10px] text-slate-400 block mb-1">종목명</label>
+<input type="text" id="add-stockus-name" class="w-full bg-slate-900/80 text-white text-xs rounded-lg p-2.5 border border-white/10 mono focus:border-indigo-500 focus:outline-none" placeholder="Apple"></div>
+<div><label class="text-[10px] text-slate-400 block mb-1">색상</label>
+<div class="flex items-center gap-2"><input type="color" id="add-stockus-color" value="#6366f1" class="w-8 h-8 rounded border-0 bg-transparent cursor-pointer"><span class="text-[10px] text-slate-500 mono" id="add-stockus-color-hex">#6366f1</span></div></div>
+</div>
+
+<div id="add-symbol-error" class="text-rose-400 text-[10px] mt-2 hidden"></div>
+<div class="mt-4 pt-3 border-t border-white/5 flex justify-end gap-2">
+<button onclick="closeAddSymbolModal()" class="px-3 py-1.5 text-slate-400 text-xs hover:text-white">취소</button>
+<button onclick="addSymbol()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold shadow-lg shadow-indigo-500/20"><i class="fa-solid fa-plus mr-1"></i>추가</button>
+</div>
+</div></div>
+
+<script>
+// ===== DATA MAPS (Top 50) =====
+let coinMap=[
+{id:'bitcoin',symbol:'BTC',apiId:'bitcoin',name:'Bitcoin',color:'#f7931a'},
+{id:'ethereum',symbol:'ETH',apiId:'ethereum',name:'Ethereum',color:'#627eea'},
+{id:'tether',symbol:'USDT',apiId:'tether',name:'Tether',color:'#26a17b'},
+{id:'ripple',symbol:'XRP',apiId:'ripple',name:'XRP',color:'#ffffff'},
+{id:'bnb',symbol:'BNB',apiId:'binancecoin',name:'BNB',color:'#f3ba2f'},
+{id:'solana',symbol:'SOL',apiId:'solana',name:'Solana',color:'#14f195'},
+{id:'usdc',symbol:'USDC',apiId:'usd-coin',name:'USDC',color:'#2775ca'},
+{id:'cardano',symbol:'ADA',apiId:'cardano',name:'Cardano',color:'#0033ad'},
+{id:'doge',symbol:'DOGE',apiId:'dogecoin',name:'Dogecoin',color:'#c2a633'},
+{id:'tron',symbol:'TRX',apiId:'tron',name:'TRON',color:'#eb0a29'},
+{id:'ton',symbol:'TON',apiId:'the-open-network',name:'Toncoin',color:'#0088cc'},
+{id:'link',symbol:'LINK',apiId:'chainlink',name:'Chainlink',color:'#2a5ada'},
+{id:'avalanche',symbol:'AVAX',apiId:'avalanche-2',name:'Avalanche',color:'#e84142'},
+{id:'sui',symbol:'SUI',apiId:'sui',name:'Sui',color:'#4da2ff'},
+{id:'shib',symbol:'SHIB',apiId:'shiba-inu',name:'Shiba Inu',color:'#ff4200'},
+{id:'polkadot',symbol:'DOT',apiId:'polkadot',name:'Polkadot',color:'#e6007a'},
+{id:'litecoin',symbol:'LTC',apiId:'litecoin',name:'Litecoin',color:'#345d9d'},
+{id:'bitcoin-cash',symbol:'BCH',apiId:'bitcoin-cash',name:'Bitcoin Cash',color:'#8dc351'},
+{id:'dai',symbol:'DAI',apiId:'dai',name:'Dai',color:'#f5ac37'},
+{id:'near',symbol:'NEAR',apiId:'near',name:'NEAR',color:'#00c1de'},
+{id:'uniswap',symbol:'UNI',apiId:'uniswap',name:'Uniswap',color:'#ff007a'},
+{id:'polygon',symbol:'POL',apiId:'matic-network',name:'Polygon',color:'#8247e5'},
+{id:'aave',symbol:'AAVE',apiId:'aave',name:'Aave',color:'#b6509e'},
+{id:'pepe',symbol:'PEPE',apiId:'pepe',name:'Pepe',color:'#4c9540'},
+{id:'internet-computer',symbol:'ICP',apiId:'internet-computer',name:'ICP',color:'#292a2e'},
+{id:'render-token',symbol:'RNDR',apiId:'render-token',name:'Render',color:'#ff4d4d'},
+{id:'atom',symbol:'ATOM',apiId:'cosmos',name:'Cosmos',color:'#6f7390'},
+{id:'ethereum-classic',symbol:'ETC',apiId:'ethereum-classic',name:'Ethereum Classic',color:'#328332'},
+{id:'filecoin',symbol:'FIL',apiId:'filecoin',name:'Filecoin',color:'#0090ff'},
+{id:'arb',symbol:'ARB',apiId:'arbitrum',name:'Arbitrum',color:'#12aaff'},
+{id:'op',symbol:'OP',apiId:'optimism',name:'Optimism',color:'#ff0420'},
+{id:'stellar',symbol:'XLM',apiId:'stellar',name:'Stellar',color:'#14b6e7'},
+{id:'hedera',symbol:'HBAR',apiId:'hedera-hashgraph',name:'Hedera',color:'#000000'},
+{id:'vechain',symbol:'VET',apiId:'vechain',name:'VeChain',color:'#15bdff'},
+{id:'injective',symbol:'INJ',apiId:'injective-protocol',name:'Injective',color:'#00f2ff'},
+{id:'aptos',symbol:'APT',apiId:'aptos',name:'Aptos',color:'#4cd7b0'},
+{id:'monero',symbol:'XMR',apiId:'monero',name:'Monero',color:'#ff6600'},
+{id:'algorand',symbol:'ALGO',apiId:'algorand',name:'Algorand',color:'#000000'},
+{id:'sei',symbol:'SEI',apiId:'sei-network',name:'Sei',color:'#9b1b30'},
+{id:'theta',symbol:'THETA',apiId:'theta-token',name:'Theta',color:'#2ab8e6'},
+{id:'floki',symbol:'FLOKI',apiId:'floki',name:'Floki',color:'#f5c62c'},
+{id:'bonk',symbol:'BONK',apiId:'bonk',name:'Bonk',color:'#e89e34'},
+{id:'sandbox',symbol:'SAND',apiId:'the-sandbox',name:'Sandbox',color:'#04adef'},
+{id:'decentraland',symbol:'MANA',apiId:'decentraland',name:'Decentraland',color:'#ff2d55'},
+{id:'gala',symbol:'GALA',apiId:'gala',name:'Gala',color:'#000000'},
+{id:'axie',symbol:'AXS',apiId:'axie-infinity',name:'Axie Infinity',color:'#0055d5'},
+{id:'babydoge',symbol:'BABYDOGE',apiId:'baby-doge-coin',name:'BabyDoge',color:'#f0c330'},
+{id:'pi',symbol:'PI',apiId:'pi-network',name:'Pi Network',color:'#6f3460'},
+{id:'gork',symbol:'GORK',apiId:'gork',name:'Gork',color:'#ff0055'},
+{id:'worldcoin',symbol:'WLD',apiId:'worldcoin-wld',name:'Worldcoin',color:'#000000'}
+];
+
+let stockMapKR=[
+{id:'005930',symbol:'005930.KS',name:'삼성전자',color:'#1428a0'},
+{id:'000660',symbol:'000660.KS',name:'SK하이닉스',color:'#e4002b'},
+{id:'373220',symbol:'373220.KS',name:'LG에너지솔루션',color:'#a50034'},
+{id:'207940',symbol:'207940.KS',name:'삼성바이오로직스',color:'#1e3a5f'},
+{id:'005380',symbol:'005380.KS',name:'현대차',color:'#002c5f'},
+{id:'000270',symbol:'000270.KS',name:'기아',color:'#05141f'},
+{id:'006400',symbol:'006400.KS',name:'삼성SDI',color:'#1428a0'},
+{id:'068270',symbol:'068270.KS',name:'셀트리온',color:'#00a19c'},
+{id:'035420',symbol:'035420.KS',name:'NAVER',color:'#03c75a'},
+{id:'035720',symbol:'035720.KS',name:'카카오',color:'#fee500'},
+{id:'005490',symbol:'005490.KS',name:'POSCO홀딩스',color:'#004b93'},
+{id:'051910',symbol:'051910.KS',name:'LG화학',color:'#a50034'},
+{id:'028260',symbol:'028260.KS',name:'삼성물산',color:'#1428a0'},
+{id:'105560',symbol:'105560.KS',name:'KB금융',color:'#ffbc00'},
+{id:'055550',symbol:'055550.KS',name:'신한지주',color:'#0046ff'},
+{id:'003670',symbol:'003670.KS',name:'포스코퓨처엠',color:'#00468b'},
+{id:'247540',symbol:'247540.KQ',name:'에코프로비엠',color:'#00b140'},
+{id:'196170',symbol:'196170.KQ',name:'알테오젠',color:'#2e4b8e'},
+{id:'003550',symbol:'003550.KS',name:'LG',color:'#a50034'},
+{id:'066570',symbol:'066570.KS',name:'LG전자',color:'#a50034'},
+{id:'032830',symbol:'032830.KS',name:'삼성생명',color:'#0b3d91'},
+{id:'086790',symbol:'086790.KS',name:'하나금융지주',color:'#008c8c'},
+{id:'017670',symbol:'017670.KS',name:'SK텔레콤',color:'#e4002b'},
+{id:'030200',symbol:'030200.KS',name:'KT',color:'#eb1c24'},
+{id:'034730',symbol:'034730.KS',name:'SK',color:'#e4002b'},
+{id:'018260',symbol:'018260.KS',name:'삼성에스디에스',color:'#1428a0'},
+{id:'009150',symbol:'009150.KS',name:'삼성전기',color:'#1428a0'},
+{id:'010950',symbol:'010950.KS',name:'S-Oil',color:'#f47920'},
+{id:'036570',symbol:'036570.KS',name:'엔씨소프트',color:'#1a1a1a'},
+{id:'251270',symbol:'251270.KS',name:'넷마블',color:'#e60012'},
+{id:'259960',symbol:'259960.KS',name:'크래프톤',color:'#ffc107'},
+{id:'352820',symbol:'352820.KS',name:'하이브',color:'#000000'},
+{id:'011170',symbol:'011170.KS',name:'롯데케미칼',color:'#e60012'},
+{id:'096770',symbol:'096770.KS',name:'SK이노베이션',color:'#e4002b'},
+{id:'012330',symbol:'012330.KS',name:'현대모비스',color:'#002c5f'},
+{id:'034020',symbol:'034020.KS',name:'두산에너빌리티',color:'#1a3c6e'},
+{id:'003490',symbol:'003490.KS',name:'대한항공',color:'#003876'},
+{id:'009540',symbol:'009540.KS',name:'한국조선해양',color:'#0072ce'},
+{id:'010130',symbol:'010130.KS',name:'고려아연',color:'#00529b'},
+{id:'000810',symbol:'000810.KS',name:'삼성화재',color:'#1428a0'},
+{id:'316140',symbol:'316140.KS',name:'우리금융지주',color:'#0072bc'},
+{id:'024110',symbol:'024110.KS',name:'기업은행',color:'#0050a0'},
+{id:'047050',symbol:'047050.KS',name:'포스코인터내셔널',color:'#004b93'},
+{id:'011200',symbol:'011200.KS',name:'HMM',color:'#005baa'},
+{id:'033780',symbol:'033780.KS',name:'KT&G',color:'#00205c'},
+{id:'329180',symbol:'329180.KS',name:'HD현대중공업',color:'#003876'},
+{id:'267260',symbol:'267260.KS',name:'HD현대일렉트릭',color:'#003876'},
+{id:'138040',symbol:'138040.KS',name:'메리츠금융지주',color:'#1a237e'},
+{id:'402340',symbol:'402340.KS',name:'SK스퀘어',color:'#e4002b'},
+{id:'000720',symbol:'000720.KS',name:'현대건설',color:'#002c5f'}
+];
+
+let stockMapUS=[
+{id:'AAPL',symbol:'AAPL',name:'Apple',color:'#555555'},
+{id:'MSFT',symbol:'MSFT',name:'Microsoft',color:'#00a4ef'},
+{id:'GOOGL',symbol:'GOOGL',name:'Alphabet',color:'#4285f4'},
+{id:'AMZN',symbol:'AMZN',name:'Amazon',color:'#ff9900'},
+{id:'NVDA',symbol:'NVDA',name:'NVIDIA',color:'#76b900'},
+{id:'TSLA',symbol:'TSLA',name:'Tesla',color:'#cc0000'},
+{id:'META',symbol:'META',name:'Meta',color:'#0668e1'},
+{id:'BRK-B',symbol:'BRK-B',name:'Berkshire Hathaway',color:'#2d1f5e'},
+{id:'LLY',symbol:'LLY',name:'Eli Lilly',color:'#d52b1e'},
+{id:'TSM',symbol:'TSM',name:'TSMC',color:'#d12025'},
+{id:'AVGO',symbol:'AVGO',name:'Broadcom',color:'#cc092f'},
+{id:'JPM',symbol:'JPM',name:'JP Morgan',color:'#003087'},
+{id:'V',symbol:'V',name:'Visa',color:'#1a1f71'},
+{id:'UNH',symbol:'UNH',name:'UnitedHealth',color:'#002677'},
+{id:'MA',symbol:'MA',name:'Mastercard',color:'#eb001b'},
+{id:'XOM',symbol:'XOM',name:'Exxon Mobil',color:'#ed1c24'},
+{id:'COST',symbol:'COST',name:'Costco',color:'#e31837'},
+{id:'JNJ',symbol:'JNJ',name:'Johnson & Johnson',color:'#d51900'},
+{id:'HD',symbol:'HD',name:'Home Depot',color:'#f96302'},
+{id:'PG',symbol:'PG',name:'Procter & Gamble',color:'#003da5'},
+{id:'ABBV',symbol:'ABBV',name:'AbbVie',color:'#071d49'},
+{id:'NFLX',symbol:'NFLX',name:'Netflix',color:'#e50914'},
+{id:'CRM',symbol:'CRM',name:'Salesforce',color:'#00a1e0'},
+{id:'ORCL',symbol:'ORCL',name:'Oracle',color:'#c74634'},
+{id:'AMD',symbol:'AMD',name:'AMD',color:'#ed1c24'},
+{id:'WMT',symbol:'WMT',name:'Walmart',color:'#0071dc'},
+{id:'BAC',symbol:'BAC',name:'Bank of America',color:'#012169'},
+{id:'MRK',symbol:'MRK',name:'Merck',color:'#009a8d'},
+{id:'KO',symbol:'KO',name:'Coca-Cola',color:'#f40009'},
+{id:'PEP',symbol:'PEP',name:'PepsiCo',color:'#004b93'},
+{id:'CSCO',symbol:'CSCO',name:'Cisco',color:'#049fd9'},
+{id:'ADBE',symbol:'ADBE',name:'Adobe',color:'#ff0000'},
+{id:'TMO',symbol:'TMO',name:'Thermo Fisher',color:'#003b71'},
+{id:'ACN',symbol:'ACN',name:'Accenture',color:'#a100ff'},
+{id:'DIS',symbol:'DIS',name:'Disney',color:'#113ccf'},
+{id:'NKE',symbol:'NKE',name:'Nike',color:'#111111'},
+{id:'INTC',symbol:'INTC',name:'Intel',color:'#0071c5'},
+{id:'QCOM',symbol:'QCOM',name:'Qualcomm',color:'#3253dc'},
+{id:'INTU',symbol:'INTU',name:'Intuit',color:'#365ebf'},
+{id:'AMAT',symbol:'AMAT',name:'Applied Materials',color:'#f47a20'},
+{id:'ISRG',symbol:'ISRG',name:'Intuitive Surgical',color:'#0066b3'},
+{id:'BKNG',symbol:'BKNG',name:'Booking Holdings',color:'#003580'},
+{id:'GS',symbol:'GS',name:'Goldman Sachs',color:'#6fa8dc'},
+{id:'AXP',symbol:'AXP',name:'American Express',color:'#006fcf'},
+{id:'UBER',symbol:'UBER',name:'Uber',color:'#000000'},
+{id:'NOW',symbol:'NOW',name:'ServiceNow',color:'#81b5a1'},
+{id:'PANW',symbol:'PANW',name:'Palo Alto Networks',color:'#fa582d'},
+{id:'PLTR',symbol:'PLTR',name:'Palantir',color:'#1a1a1a'},
+{id:'COIN',symbol:'COIN',name:'Coinbase',color:'#0052ff'},
+{id:'ARM',symbol:'ARM',name:'ARM Holdings',color:'#0091bd'}
+];
+
+// ===== STATE =====
+let currentMode = 'crypto'; // 'crypto' | 'stock_kr' | 'stock_us'
+
+// -- DATA_PERSISTENCE_START --
+let favCrypto=["bitcoin","ethereum","solana","ripple","litecoin","doge","shib","pepe","bonk","babydoge","pi","gork"];
+let favStockKR=["005930","000660","035420","035720","005380","000270","373220","006400"];
+let favStockUS=["AAPL","MSFT","GOOGL","AMZN","NVDA","TSLA","META","NFLX"];
+let portCrypto=[{"id":"pi","amount":6152,"avgBuyPrice":1.6003,"currency":"USD"},{"id":"babydoge","amount":92233846153,"avgBuyPrice":1.625e-9,"currency":"USD"},{"id":"gork","amount":131180,"avgBuyPrice":0.002232,"currency":"USD"}];
+let portStockKR=[];
+let portStockUS=[];
+let customCoinMap=[];
+let customStockKR=[];
+let customStockUS=[];
+// -- DATA_PERSISTENCE_END --
+
+try{
+const s=k=>localStorage.getItem(k);
+if(s('ci_favCrypto'))favCrypto=JSON.parse(s('ci_favCrypto'));
+if(s('ci_favStockKR'))favStockKR=JSON.parse(s('ci_favStockKR'));
+if(s('ci_favStockUS'))favStockUS=JSON.parse(s('ci_favStockUS'));
+if(s('ci_portCrypto'))portCrypto=JSON.parse(s('ci_portCrypto'));
+if(s('ci_portStockKR'))portStockKR=JSON.parse(s('ci_portStockKR'));
+if(s('ci_portStockUS'))portStockUS=JSON.parse(s('ci_portStockUS'));
+// Load custom symbols from localStorage (overrides file defaults)
+if(s('ci_customCoinMap'))customCoinMap=JSON.parse(s('ci_customCoinMap'));
+if(s('ci_customStockKR'))customStockKR=JSON.parse(s('ci_customStockKR'));
+if(s('ci_customStockUS'))customStockUS=JSON.parse(s('ci_customStockUS'));
+}catch(e){}
+// Merge custom symbols into maps
+customCoinMap.forEach(item=>{if(!coinMap.find(x=>x.id===item.id))coinMap.push(item)});
+customStockKR.forEach(item=>{if(!stockMapKR.find(x=>x.id===item.id))stockMapKR.push(item)});
+customStockUS.forEach(item=>{if(!stockMapUS.find(x=>x.id===item.id))stockMapUS.push(item)});
+
+let dataCrypto=[],dataStockKR=[],dataStockUS=[];
+let exchangeRate=1450;
+let selectedId='bitcoin';
+let selectedTF='30';
+let mainChart=null,domChart=null;
+let isFetching=false,rateLimitCD=0;
+let chartCache={};
+let refreshCD=60,refreshTimer=null;
+let isCompact=false;
+let priceLog=[],prevPrices={};
+const sessionStart=new Date();
+
+// ===== DATA CACHE (localStorage) =====
+function saveDataCache(mode,data){
+    try{
+        const k='ci_cache_'+mode;
+        localStorage.setItem(k,JSON.stringify({data,ts:Date.now(),rate:exchangeRate}));
+    }catch(e){}
+}
+function loadDataCache(mode){
+    try{
+        const k='ci_cache_'+mode;
+        const raw=localStorage.getItem(k);
+        if(!raw)return null;
+        const obj=JSON.parse(raw);
+        if(!obj||!obj.data||!obj.data.length)return null;
+        return obj;
+    }catch(e){return null}
+}
+function fmtCacheAge(ts){
+    const sec=Math.floor((Date.now()-ts)/1000);
+    if(sec<60)return sec+'초 전';
+    if(sec<3600)return Math.floor(sec/60)+'분 전';
+    if(sec<86400)return Math.floor(sec/3600)+'시간 전';
+    return Math.floor(sec/86400)+'일 전';
+}
+
+// Helpers
+function getMap(){return currentMode==='crypto'?coinMap:currentMode==='stock_kr'?stockMapKR:stockMapUS}
+function getData(){return currentMode==='crypto'?dataCrypto:currentMode==='stock_kr'?dataStockKR:dataStockUS}
+function setData(d){if(currentMode==='crypto')dataCrypto=d;else if(currentMode==='stock_kr')dataStockKR=d;else dataStockUS=d}
+function getFavs(){return currentMode==='crypto'?favCrypto:currentMode==='stock_kr'?favStockKR:favStockUS}
+function setFavs(f){if(currentMode==='crypto')favCrypto=f;else if(currentMode==='stock_kr')favStockKR=f;else favStockUS=f}
+function getPort(){return currentMode==='crypto'?portCrypto:currentMode==='stock_kr'?portStockKR:portStockUS}
+function setPort(p){if(currentMode==='crypto')portCrypto=p;else if(currentMode==='stock_kr')portStockKR=p;else portStockUS=p}
+
+// ===== FORMATTERS =====
+const fmtKRW=n=>{if(n==null||isNaN(n))return'₩0';const a=Math.abs(n);if(a<.001)return'₩'+n.toFixed(10).replace(/\.?0+$/,'');if(a<.1)return'₩'+n.toFixed(8).replace(/\.?0+$/,'');if(a<1e3)return'₩'+n.toLocaleString('ko-KR',{maximumFractionDigits:2});return'₩'+Math.round(n).toLocaleString('ko-KR')};
+const fmtUSD=n=>{if(n==null||isNaN(n))return'$0';const a=Math.abs(n);if(a<1e-6)return'$'+n.toFixed(12).replace(/\.?0+$/,'');if(a<.01)return'$'+n.toFixed(8).replace(/\.?0+$/,'');if(a<1)return'$'+n.toFixed(4).replace(/\.?0+$/,'');return'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})};
+const fmtPct=n=>`${(n||0)>=0?'+':''}${(n||0).toFixed(2)}%`;
+const fmtCap=n=>{if(!n)return'-';if(n>=1e12)return(n/1e12).toFixed(1)+'조';if(n>=1e8)return(n/1e8).toFixed(0)+'억';return n.toLocaleString('ko-KR')};
+const fmtPrice=(item)=>{
+    const isKR=currentMode==='stock_kr';
+    const isCrypto=currentMode==='crypto';
+    if(isCrypto||isKR)return fmtKRW(item.priceKrw);
+    return fmtUSD(item.priceUsd);
+};
+const fmtPriceSub=(item)=>{
+    const isKR=currentMode==='stock_kr';
+    const isCrypto=currentMode==='crypto';
+    if(isCrypto)return fmtUSD(item.priceUsd);
+    if(isKR)return fmtUSD(item.priceUsd);
+    return fmtKRW(item.priceKrw);
+};
+
+// ===== CORS PROXY (parallel race — fastest wins) =====
+async function fetchProxy(url){
+    const makeProxyUrl=[
+        u=>'https://api.allorigins.win/get?url='+encodeURIComponent(u),
+        u=>'https://api.allorigins.win/raw?url='+encodeURIComponent(u),
+        u=>'https://corsproxy.io/?url='+encodeURIComponent(u),
+        u=>'https://api.codetabs.com/v1/proxy?quest='+encodeURIComponent(u),
+    ];
+    const isWrapped=[true,false,false,false];
+    const TIMEOUT=5000;
+
+    // If we know a fast proxy, try it first with short timeout
+    if(fetchProxy._lastOk!=null){
+        try{
+            const idx=fetchProxy._lastOk;
+            const r=await fetch(makeProxyUrl[idx](url),{signal:AbortSignal.timeout(3000)});
+            if(r.ok){
+                if(isWrapped[idx]){const j=await r.json();if(j&&j.contents)return JSON.parse(j.contents)}
+                else{const t=await r.text();if(t&&t.length>10)return JSON.parse(t)}
+            }
+        }catch(e){}
+    }
+
+    // Race ALL proxies in parallel — first valid response wins
+    const racePromises=makeProxyUrl.map((fn,idx)=>
+        (async()=>{
+            try{
+                const r=await fetch(fn(url),{signal:AbortSignal.timeout(TIMEOUT)});
+                if(!r.ok)throw new Error('bad');
+                if(isWrapped[idx]){
+                    const j=await r.json();
+                    if(j&&j.contents){const parsed=JSON.parse(j.contents);fetchProxy._lastOk=idx;return parsed}
+                }else{
+                    const t=await r.text();
+                    if(t&&t.length>10){const parsed=JSON.parse(t);fetchProxy._lastOk=idx;return parsed}
+                }
+                throw new Error('empty');
+            }catch(e){throw e}
+        })()
+    );
+    try{return await Promise.any(racePromises)}catch(e){return null}
+}
+fetchProxy._lastOk=null;
+
+// ===== FETCH: CRYPTO =====
+async function fetchCrypto(){
+    const ids=coinMap.map(c=>c.apiId).join(',');
+    const res=await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=krw,usd&include_24hr_change=true&include_market_cap=true`);
+    if(res.status===429)throw new Error("Rate Limit");
+    if(!res.ok)throw new Error("Network");
+    const data=await res.json();
+    if(data.bitcoin)exchangeRate=data.bitcoin.krw/data.bitcoin.usd;
+    return coinMap.map(c=>{const d=data[c.apiId];if(!d)return null;return{id:c.id,symbol:c.symbol,name:c.name,color:c.color,apiId:c.apiId,priceKrw:d.krw,priceUsd:d.usd,change24h:d.krw_24h_change,mktCap:d.krw_market_cap}}).filter(Boolean);
+}
+
+// ===== LOADING PROGRESS UI =====
+function showProgress(show){
+    document.getElementById('progress-wrap').classList.toggle('active',show);
+    document.getElementById('loading-overlay').classList.toggle('active',show);
+}
+function updateProgress(current,total,name,mode){
+    const pct=Math.round(current/total*100);
+    document.getElementById('progress-bar').style.width=pct+'%';
+    document.getElementById('loading-inner-bar').style.width=pct+'%';
+    document.getElementById('loading-detail').innerText=`${current} / ${total}`;
+    document.getElementById('loading-current').innerText=name||'';
+    document.getElementById('loading-title').innerText=mode==='crypto'?'코인 데이터 로딩 중':(mode==='stock_kr'?'KR 주식 로딩 중':'US 주식 로딩 중');
+}
+
+// ===== FETCH ONE STOCK (fallback) =====
+async function fetchOneStock(s){
+    try{
+        const data=await fetchProxy(`https://query1.finance.yahoo.com/v8/finance/chart/${s.symbol}?range=1d&interval=5m`);
+        if(data&&data.chart&&data.chart.result){
+            const meta=data.chart.result[0].meta;
+            const price=meta.regularMarketPrice||0;
+            if(price===0)return null;
+            const prevClose=meta.chartPreviousClose||meta.previousClose||price;
+            const change=prevClose?((price-prevClose)/prevClose)*100:0;
+            const currency=meta.currency||'USD';
+            const isKRW=currency==='KRW';
+            return{id:s.id,symbol:s.symbol,name:s.name,color:s.color,apiId:s.symbol,
+                priceKrw:isKRW?price:price*exchangeRate,priceUsd:isKRW?price/exchangeRate:price,
+                change24h:change,mktCap:meta.marketCap||0};
+        }
+    }catch(e){}
+    return null;
+}
+
+// ===== FETCH: STOCKS (single batch — all at once) =====
+async function fetchStocks(sMap){
+    showProgress(true);
+    updateProgress(1,3,'일괄 조회 중...',currentMode);
+
+    // All symbols in ONE request
+    const allSyms=sMap.map(s=>s.symbol).join(',');
+    let allQuotes=null;
+
+    // Try v7 quote API
+    try{
+        const data=await fetchProxy(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${allSyms}`);
+        if(data&&data.quoteResponse&&data.quoteResponse.result&&data.quoteResponse.result.length>0)
+            allQuotes=data.quoteResponse.result;
+    }catch(e){}
+
+    // Fallback: try v6
+    if(!allQuotes){
+        updateProgress(2,3,'v6 API 시도 중...',currentMode);
+        try{
+            const data=await fetchProxy(`https://query2.finance.yahoo.com/v6/finance/quote?symbols=${allSyms}`);
+            if(data&&data.quoteResponse&&data.quoteResponse.result&&data.quoteResponse.result.length>0)
+                allQuotes=data.quoteResponse.result;
+        }catch(e){}
+    }
+
+    updateProgress(3,3,'데이터 처리 중...',currentMode);
+
+    const results=[];
+    let failCount=0;
+
+    if(allQuotes&&allQuotes.length>0){
+        sMap.forEach(s=>{
+            const q=allQuotes.find(x=>x.symbol===s.symbol);
+            if(q&&q.regularMarketPrice){
+                const price=q.regularMarketPrice;
+                const change=q.regularMarketChangePercent||0;
+                const currency=q.currency||'USD';
+                const isKRW=currency==='KRW';
+                results.push({id:s.id,symbol:s.symbol,name:s.name,color:s.color,apiId:s.symbol,
+                    priceKrw:isKRW?price:price*exchangeRate,priceUsd:isKRW?price/exchangeRate:price,
+                    change24h:change,mktCap:q.marketCap||0});
+            }else{failCount++}
+        });
+    }
+
+    // If batch failed, parallel individual fetch (10 at a time)
+    if(results.length===0){
+        updateProgress(0,sMap.length,'개별 조회 전환...',currentMode);
+        const BATCH=10;
+        for(let i=0;i<sMap.length;i+=BATCH){
+            const batch=sMap.slice(i,i+BATCH);
+            const res=await Promise.all(batch.map(s=>fetchOneStock(s)));
+            res.forEach((r,j)=>{
+                if(r)results.push(r); else failCount++;
+                updateProgress(i+j+1,sMap.length,batch[j].name,currentMode);
+            });
+            if(currentMode==='stock_kr')dataStockKR=[...results];else dataStockUS=[...results];
+            updateUI();
+            if(i+BATCH<sMap.length)await new Promise(r=>setTimeout(r,100));
+        }
+    }
+
+    showProgress(false);
+    if(failCount>0&&results.length>0)showToast(`${results.length}/${sMap.length} 로딩 (${failCount}개 실패)`);
+    else if(results.length===0)showToast('프록시 응답 없음. R키로 재시도');
+    else showToast(`${results.length}개 로딩 완료`);
+    return results;
+}
+
+// ===== MAIN FETCH =====
+async function fetchData(){
+    if(isFetching||rateLimitCD>0)return;
+    isFetching=true;
+    const dot=document.getElementById('api-status-dot');
+    const txt=document.getElementById('api-status-text');
+    const icon=document.getElementById('icon-refresh');
+    icon.classList.add('animate-spin');
+    dot.className='w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse';
+    txt.innerText='Updating...';
+
+    try{
+        if(currentMode==='crypto'){
+            showProgress(true);
+            updateProgress(1,1,'CoinGecko API','crypto');
+            dataCrypto=await fetchCrypto();
+            showProgress(false);
+        }else{
+            const map=currentMode==='stock_kr'?stockMapKR:stockMapUS;
+            const result=await fetchStocks(map);
+            if(currentMode==='stock_kr')dataStockKR=result;else dataStockUS=result;
+        }
+        document.getElementById('nav-exchange-rate').innerText=exchangeRate.toLocaleString('ko-KR',{minimumFractionDigits:2,maximumFractionDigits:2});
+        dot.className='w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot';
+        txt.innerText='Live';
+        // Save to cache
+        saveDataCache(currentMode,getData());
+        updateUI();
+        startCountdown();
+    }catch(err){
+        console.error(err);
+        showProgress(false);
+        if(err.message.includes('Rate Limit'))startRateLimit();
+        else{dot.className='w-1.5 h-1.5 rounded-full bg-red-500';txt.innerText='Offline'}
+        if(!getData().length){setData(getMap().map(c=>({id:c.id,symbol:c.symbol,name:c.name,color:c.color,apiId:c.apiId||c.symbol,priceKrw:0,priceUsd:0,change24h:0,mktCap:0})));updateUI()}
+    }finally{isFetching=false;icon.classList.remove('animate-spin')}
+}
+
+// ===== CHART FETCH =====
+async function fetchChartHistory(apiId,days){
+    const ck=`${currentMode}_${apiId}_${days}`;
+    const c=chartCache[ck];
+    if(c&&Date.now()-c.ts<120000)return c.data;
+    document.getElementById('chart-loading').classList.remove('hidden');
+    try{
+        if(currentMode==='crypto'){
+            const r=await fetch(`https://api.coingecko.com/api/v3/coins/${apiId}/market_chart?vs_currency=krw&days=${days}`);
+            if(!r.ok)throw new Error();
+            const d=await r.json();
+            chartCache[ck]={data:d.prices,ts:Date.now()};
+            return d.prices;
+        }else{
+            const rangeMap={'1':'1d','7':'5d','30':'1mo','365':'1y'};
+            const intMap={'1':'5m','7':'15m','30':'1d','365':'1wk'};
+            const url=`https://query1.finance.yahoo.com/v8/finance/chart/${apiId}?range=${rangeMap[days]}&interval=${intMap[days]}`;
+            const data=await fetchProxy(url);
+            if(!data||!data.chart||!data.chart.result)return null;
+            const r=data.chart.result[0];
+            const ts=r.timestamp||[];
+            const closes=(r.indicators.quote[0].close||[]);
+            const prices=ts.map((t,i)=>[t*1000,closes[i]]).filter(p=>p[1]!=null);
+            // Convert to KRW for KR stocks (already KRW), for US stocks convert
+            const isKR=currentMode==='stock_kr';
+            const converted=isKR?prices:prices.map(p=>[p[0],p[1]*exchangeRate]);
+            chartCache[ck]={data:converted,ts:Date.now()};
+            return converted;
+        }
+    }catch(e){return null}finally{document.getElementById('chart-loading').classList.add('hidden')}
+}
+
+// Rate limit & countdown
+function startRateLimit(){
+    rateLimitCD=65;const txt=document.getElementById('api-status-text');const btn=document.getElementById('btn-refresh');
+    document.getElementById('api-status-dot').className='w-1.5 h-1.5 rounded-full bg-red-500';btn.classList.add('btn-disabled');
+    const t=setInterval(()=>{rateLimitCD--;txt.innerText=`${rateLimitCD}s`;if(rateLimitCD<=0){clearInterval(t);btn.classList.remove('btn-disabled');fetchData()}},1000);
+}
+function startCountdown(){
+    if(refreshTimer)clearInterval(refreshTimer);refreshCD=currentMode==='crypto'?60:120;
+    const el=document.getElementById('update-countdown');
+    refreshTimer=setInterval(()=>{refreshCD--;el.innerText=refreshCD>0?`${refreshCD}s`:'';if(refreshCD<=0){clearInterval(refreshTimer);fetchData()}},1000);
+}
+function manualRefresh(){if(rateLimitCD<=0){if(refreshTimer)clearInterval(refreshTimer);fetchData()}}
+
+// ===== MODE SWITCH =====
+function switchMode(mode){
+    currentMode=mode;
+    document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('mode-'+mode).classList.add('active');
+    // Load cache if no in-memory data
+    if(!getData().length){
+        const cached=loadDataCache(mode);
+        if(cached&&cached.data.length){
+            setData(cached.data);
+            if(cached.rate)exchangeRate=cached.rate;
+            document.getElementById('nav-exchange-rate').innerText=exchangeRate.toLocaleString('ko-KR',{minimumFractionDigits:2,maximumFractionDigits:2});
+            const dot=document.getElementById('api-status-dot');
+            const txt=document.getElementById('api-status-text');
+            dot.className='w-1.5 h-1.5 rounded-full bg-amber-400';
+            txt.innerText='캐시 ('+fmtCacheAge(cached.ts)+')';
+        }
+    }
+    // Reset selection
+    const d=getData();
+    if(d.length)selectedId=d[0].id;
+    else{const m=getMap();if(m.length)selectedId=m[0].id}
+    // Show cached UI immediately, then fetch fresh
+    if(getData().length){updateUI();fetchData()}
+    else fetchData();
+}
+
+// ===== RENDER =====
+function updateUI(){
+    renderCards();renderPortfolio();renderTable();updateChart();updateDominance();updateTicker();logChanges();
+    document.getElementById('total-count').innerText=`${getData().length} items`;
+}
+
+function renderCards(){
+    const data=getData(),favs=getFavs();
+    const container=document.getElementById('top-cards-container');
+    const items=favs.map(id=>data.find(c=>c.id===id)).filter(Boolean);
+    if(!items.length)return container.innerHTML='<div class="col-span-full text-center text-slate-600 py-8 text-sm">데이터 로딩 중...</div>';
+    container.innerHTML=items.map(c=>{
+        const up=c.change24h>=0;const sel=selectedId===c.id?'selected-coin':'';
+        return`<div onclick="selectItem('${c.id}')" class="glass rounded-xl p-3.5 card-hover cursor-pointer border border-white/5 ${sel}" style="border-left:3px solid ${c.color}">
+        <div class="flex justify-between items-start mb-2.5"><div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-lg bg-slate-800 flex items-center justify-center text-[10px] font-bold border border-white/5 mono" style="color:${c.color}">${c.symbol.substring(0,4)}</div>
+        <div><p class="text-xs font-bold text-white leading-tight">${c.name}</p><p class="text-[9px] text-slate-600 mono">${c.symbol}</p></div></div>
+        <span class="text-[10px] font-bold mono ${up?'text-emerald-400':'text-rose-400'}">${fmtPct(c.change24h)}</span></div>
+        <p class="text-base font-bold text-white mono tracking-tight">${fmtPrice(c)}</p>
+        <p class="text-[10px] text-slate-600 mono mt-0.5">${fmtPriceSub(c)}</p></div>`;
+    }).join('');
+}
+
+function renderPortfolio(){
+    const data=getData(),port=getPort();
+    const container=document.getElementById('portfolio-list');
+    let totalVal=0,totalInv=0;
+    if(!port.length){
+        container.innerHTML='<div class="col-span-full text-center text-slate-600 py-6 text-xs">보유 자산 없음</div>';
+        document.getElementById('portfolio-total').innerText='₩0';document.getElementById('portfolio-pnl-container').innerHTML='';return;
+    }
+    container.innerHTML=port.map(item=>{
+        const c=data.find(d=>d.id===item.id);if(!c)return'';
+        const curVal=item.amount*c.priceKrw;
+        const invVal=item.currency==='USD'?(item.avgBuyPrice*item.amount*exchangeRate):(item.avgBuyPrice*item.amount);
+        totalVal+=curVal;totalInv+=invVal;
+        const pnl=curVal-invVal;const pct=invVal>0?(pnl/invVal)*100:0;const clr=pnl>=0?'text-emerald-400':'text-rose-400';
+        return`<div class="bg-slate-800/40 rounded-lg p-3 border border-white/5 flex flex-col justify-between">
+        <div class="flex justify-between items-start mb-2"><div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded-md bg-slate-800 flex items-center justify-center text-[9px] font-bold mono" style="color:${c.color}">${c.symbol.substring(0,3)}</div>
+        <div><p class="text-xs font-bold text-white">${c.name}</p><p class="text-[9px] text-slate-500 mono">${item.amount.toLocaleString()} ${c.symbol}</p></div></div>
+        <span class="text-[10px] font-semibold ${clr} bg-slate-900/60 px-1.5 py-0.5 rounded mono">${fmtPct(pct)}</span></div>
+        <div><p class="text-sm font-bold text-white mono">${fmtKRW(curVal)}</p>
+        <div class="flex justify-between mt-0.5"><span class="text-[9px] text-slate-600">평단:<span class="text-indigo-300 mono ml-1">${item.currency} ${item.avgBuyPrice}</span></span>
+        <span class="text-[9px] ${clr} mono">${fmtKRW(pnl)}</span></div></div></div>`;
+    }).join('');
+    const tp=totalVal-totalInv;const tpc=totalInv>0?(tp/totalInv)*100:0;const tc=tp>=0?'text-emerald-400':'text-rose-400';
+    document.getElementById('portfolio-total').innerText=fmtKRW(totalVal);
+    document.getElementById('portfolio-pnl-container').innerHTML=`<span class="${tc} font-bold mono text-xs">${fmtPct(tpc)}</span><span class="text-slate-600 text-[10px] mono">(${fmtKRW(tp)})</span>`;
+}
+
+function renderTable(){
+    const data=getData();
+    const customs=getCustomSymbols(currentMode);
+    const customIds=customs.map(c=>c.id);
+    document.getElementById('table-body').innerHTML=data.map((c,i)=>{
+        const up=c.change24h>=0;
+        const isCustom=customIds.includes(c.id);
+        return`<tr class="hover:bg-white/[0.02] transition cursor-pointer" onclick="selectItem('${c.id}')">
+        <td class="px-4 py-3 text-slate-600 text-[10px] mono">${i+1}</td>
+        <td class="px-4 py-3"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-md bg-slate-800/80 flex items-center justify-center text-[9px] font-bold mono" style="color:${c.color}">${c.symbol.substring(0,4)}</div>
+        <span class="font-medium text-slate-200 text-xs">${c.name} <span class="text-slate-600 mono">${c.symbol}</span></span>${isCustom?'<span class="text-[8px] bg-indigo-500/20 text-indigo-300 px-1 py-0.5 rounded ml-1">추가</span>':''}</div></td>
+        <td class="px-4 py-3 text-right"><div class="font-bold text-white text-xs mono">${fmtPrice(c)}</div><div class="text-[10px] text-slate-600 mono">${fmtPriceSub(c)}</div></td>
+        <td class="px-4 py-3 text-right ${up?'text-emerald-400':'text-rose-400'} font-medium text-xs mono">${fmtPct(c.change24h)}</td>
+        <td class="px-4 py-3 text-right text-slate-500 text-[10px] mono">${fmtCap(c.mktCap)}${isCustom?` <button onclick="event.stopPropagation();removeSymbolById('${c.id}')" class="ml-1 text-rose-500/50 hover:text-rose-400 transition" title="삭제"><i class="fa-solid fa-trash-can text-[9px]"></i></button>`:''}</td></tr>`;
+    }).join('');
+}
+
+function removeSymbolById(id){
+    if(!confirm('이 종목을 삭제하시겠습니까?'))return;
+    removeCustomSymbol(currentMode,id);
+    if(currentMode==='crypto')coinMap=coinMap.filter(c=>c.id!==id);
+    else if(currentMode==='stock_kr')stockMapKR=stockMapKR.filter(c=>c.id!==id);
+    else stockMapUS=stockMapUS.filter(c=>c.id!==id);
+    // Also remove from favs/portfolio
+    setFavs(getFavs().filter(f=>f!==id));
+    setPort(getPort().filter(p=>p.id!==id));
+    setData(getData().filter(d=>d.id!==id));
+    saveLS();updateUI();
+    showToast('종목이 삭제되었습니다');
+}
+
+// ===== CHARTS =====
+function initCharts(){
+    Chart.defaults.font.family="'JetBrains Mono','Noto Sans KR',sans-serif";Chart.defaults.font.size=10;Chart.defaults.color='#64748b';
+    mainChart=new Chart(document.getElementById('mainPriceChart').getContext('2d'),{type:'line',data:{labels:[],datasets:[{label:'Price',data:[],borderColor:'#6366f1',backgroundColor:'transparent',borderWidth:1.5,pointRadius:0,pointHoverRadius:3,fill:true,tension:.3}]},options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(15,23,42,.95)',borderColor:'rgba(255,255,255,.1)',borderWidth:1,callbacks:{label:ctx=>fmtKRW(ctx.parsed.y)}}},scales:{x:{type:'time',time:{tooltipFormat:'yyyy-MM-dd HH:mm'},grid:{display:false},ticks:{maxTicksLimit:6,font:{size:9}}},y:{grid:{color:'rgba(255,255,255,.03)',drawBorder:false},ticks:{font:{size:9},callback:v=>{if(v>=1e6)return(v/1e6).toFixed(1)+'M';if(v>=1e3)return(v/1e3).toFixed(1)+'K';return v>=1?v.toFixed(0):v.toFixed(4)}}}}}});
+    domChart=new Chart(document.getElementById('dominanceChart').getContext('2d'),{type:'doughnut',data:{labels:['A','B','C'],datasets:[{data:[33,33,34],backgroundColor:['#f7931a','#627eea','#334155'],borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'78%',plugins:{legend:{display:false}}}});
+}
+
+async function updateChart(){
+    if(!mainChart)return;
+    const data=getData();const item=data.find(c=>c.id===selectedId);
+    if(!item)return;
+    document.getElementById('chart-title-coin').innerText=`${item.name} (${item.symbol})`;
+    document.getElementById('chart-title-coin').style.color=item.color;
+    document.getElementById('chart-title-price').innerText=fmtPrice(item);
+
+    const apiId=item.apiId||item.symbol;
+    const prices=await fetchChartHistory(apiId,selectedTF);
+    if(prices&&prices.length){
+        const s=prices[0][1],e=prices[prices.length-1][1],up=e>=s;
+        const ctx=mainChart.ctx;const g=ctx.createLinearGradient(0,0,0,ctx.canvas.clientHeight);
+        g.addColorStop(0,up?'rgba(16,185,129,.15)':'rgba(239,68,68,.15)');g.addColorStop(1,'transparent');
+        mainChart.data.labels=prices.map(p=>new Date(p[0]));mainChart.data.datasets[0].data=prices.map(p=>p[1]);
+        mainChart.data.datasets[0].borderColor=up?'#10b981':'#ef4444';mainChart.data.datasets[0].backgroundColor=g;mainChart.data.datasets[0].fill=true;
+        const chg=((e-s)/s*100).toFixed(2);
+        document.getElementById('chart-subtitle').innerHTML=`<span class="mono ${up?'text-emerald-400':'text-rose-400'}">${up?'▲':'▼'} ${fmtKRW(Math.abs(e-s))} (${chg>0?'+':''}${chg}%)</span>`;
+    }else{
+        mainChart.data.labels=[];mainChart.data.datasets[0].data=[];
+        document.getElementById('chart-subtitle').innerHTML='<span class="text-amber-500/60">차트 데이터 로딩 실패</span>';
+    }
+    mainChart.update('none');
+}
+
+function updateDominance(){
+    const data=getData();if(!domChart||!data.length)return;
+    const total=data.reduce((s,c)=>s+(c.mktCap||0),0);
+    // Top 2 by market cap
+    const sorted=[...data].sort((a,b)=>(b.mktCap||0)-(a.mktCap||0));
+    const top1=sorted[0],top2=sorted[1];
+    if(!total||!top1){
+        // For stocks without market cap, show by price rank instead
+        const labels=document.getElementById('dominance-labels');
+        if(currentMode!=='crypto'){
+            document.getElementById('dominance-title').innerText='상위 종목';
+            const top3=sorted.slice(0,3);
+            labels.innerHTML=top3.map((c,i)=>`<div class="bg-slate-900/50 rounded-md p-1.5 border border-white/5"><span class="text-[10px] text-slate-400">${c.symbol}</span><span class="block font-bold text-sm mono ${c.change24h>=0?'text-emerald-400':'text-rose-400'}">${fmtPct(c.change24h)}</span></div>`).join('');
+            domChart.data.datasets[0].data=top3.map(c=>Math.abs(c.change24h||1));
+            domChart.data.datasets[0].backgroundColor=top3.map(c=>c.color);
+            domChart.data.labels=top3.map(c=>c.symbol);
+        }
+        domChart.update('none');return;
+    }
+    document.getElementById('dominance-title').innerText='시장 점유율';
+    const v1=(top1.mktCap/total*100).toFixed(1),v2=(top2.mktCap/total*100).toFixed(1),v3=(100-v1-v2).toFixed(1);
+    domChart.data.datasets[0].data=[v1,v2,v3];
+    domChart.data.datasets[0].backgroundColor=[top1.color,top2.color,'#334155'];
+    domChart.data.labels=[top1.symbol,top2.symbol,'Others'];
+    domChart.update('none');
+    const labels=document.getElementById('dominance-labels');
+    labels.innerHTML=`<div class="bg-slate-900/50 rounded-md p-1.5 border border-white/5"><span class="text-[10px] text-slate-400">${top1.symbol}</span><span class="block font-bold text-sm mono" style="color:${top1.color}">${v1}%</span></div>
+    <div class="bg-slate-900/50 rounded-md p-1.5 border border-white/5"><span class="text-[10px] text-slate-400">${top2.symbol}</span><span class="block font-bold text-sm mono" style="color:${top2.color}">${v2}%</span></div>
+    <div class="bg-slate-900/50 rounded-md p-1.5 border border-white/5"><span class="text-[10px] text-slate-400">Others</span><span class="block font-bold text-sm mono text-slate-400">${v3}%</span></div>`;
+}
+
+function selectItem(id){selectedId=id;updateUI()}
+function setTimeframe(tf){selectedTF=tf;document.querySelectorAll('.timeframe-btn').forEach(b=>{b.classList.remove('bg-indigo-600','text-white','shadow');b.classList.add('text-slate-500')});document.getElementById('btn-'+tf).classList.remove('text-slate-500');document.getElementById('btn-'+tf).classList.add('bg-indigo-600','text-white','shadow');updateChart()}
+
+// ===== TICKER =====
+function updateTicker(){
+    const data=getData();if(!data.length)return;
+    const items=data.map(c=>`<span class="ticker-item"><span class="text-slate-500 font-semibold mono">${c.symbol}</span><span class="text-white mono">${fmtPrice(c)}</span><span class="${c.change24h>=0?'text-emerald-400':'text-rose-400'} mono">${c.change24h>=0?'▲':'▼'}${Math.abs(c.change24h||0).toFixed(2)}%</span></span>`).join('');
+    document.getElementById('ticker-track').innerHTML=items+items;
+}
+
+// ===== PRICE LOG =====
+function logChanges(){
+    const data=getData(),favs=getFavs();if(!data.length)return;
+    const now=new Date();const ts=now.toLocaleTimeString('ko-KR',{hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    favs.slice(0,8).forEach(id=>{
+        const c=data.find(d=>d.id===id);if(!c||!c.priceKrw)return;
+        const prev=prevPrices[currentMode+'_'+id];
+        if(prev&&prev!==c.priceKrw){const diff=c.priceKrw-prev;const pct=((diff/prev)*100).toFixed(3);
+        if(Math.abs(pct)>=0.001)priceLog.unshift({time:ts,symbol:c.symbol,color:c.color,price:c.priceKrw,diff,pct,up:diff>=0})}
+        prevPrices[currentMode+'_'+id]=c.priceKrw;
+    });
+    if(priceLog.length>200)priceLog=priceLog.slice(0,200);
+    const el=document.getElementById('price-log');
+    if(!priceLog.length){el.innerHTML='<p class="text-[10px] text-slate-700 text-center py-8">변동 시 자동 기록</p>';return}
+    el.innerHTML=priceLog.slice(0,50).map(l=>`<div class="history-row"><span class="text-slate-600 mono">${l.time}</span><span class="mono" style="color:${l.color}">${l.symbol}</span><span class="${l.up?'text-emerald-400':'text-rose-400'} mono">${l.up?'▲':'▼'}${Math.abs(l.pct)}%</span></div>`).join('');
+    document.getElementById('log-count').innerText=priceLog.length+'건';
+}
+function clearPriceLog(){priceLog=[];prevPrices={};logChanges()}
+
+// ===== MODALS =====
+function openFavoritesModal(){
+    document.getElementById('favoritesModal').classList.remove('hidden');
+    const map=getMap(),favs=getFavs();
+    document.getElementById('favorites-list').innerHTML=map.map(c=>`<label class="flex items-center gap-1.5 p-1.5 bg-slate-700/50 rounded-md cursor-pointer hover:bg-slate-700 transition text-[11px]"><input type="checkbox" value="${c.id}" ${favs.includes(c.id)?'checked':''}><span class="text-white mono">${c.symbol}</span><span class="text-slate-500 text-[9px] truncate">${c.name}</span></label>`).join('');
+}
+function closeFavoritesModal(){document.getElementById('favoritesModal').classList.add('hidden')}
+function saveFavorites(){
+    const f=Array.from(document.querySelectorAll('#favorites-list input:checked')).map(cb=>cb.value);
+    setFavs(f);saveLS();updateUI();closeFavoritesModal();
+}
+
+function openModal(){
+    document.getElementById('portfolioModal').classList.remove('hidden');
+    const list=document.getElementById('modal-inputs');list.innerHTML='';
+    const map=getMap(),port=getPort();
+    (port.length?port:[{id:map[0]?.id||'',amount:0,avgBuyPrice:0,currency:'KRW'}]).forEach(item=>{
+        const div=document.createElement('div');div.className='grid grid-cols-12 gap-1.5 items-center bg-slate-900/60 p-2 rounded-md row-item';
+        div.innerHTML=`<div class="col-span-3"><select class="w-full bg-slate-800 text-white text-[10px] rounded-md p-1.5 p-coin border border-white/5 mono">${map.map(c=>`<option value="${c.id}" ${c.id===item.id?'selected':''}>${c.symbol} ${c.name}</option>`).join('')}</select></div>
+        <div class="col-span-3"><input type="number" class="w-full bg-slate-800 text-white text-[10px] rounded-md p-1.5 p-amt border border-white/5 mono" value="${item.amount}"></div>
+        <div class="col-span-3"><input type="number" class="w-full bg-slate-800 text-white text-[10px] rounded-md p-1.5 p-price border border-white/5 mono" value="${item.avgBuyPrice}" step="any"></div>
+        <div class="col-span-2"><select class="w-full bg-slate-800 text-white text-[10px] rounded-md p-1.5 p-curr border border-white/5 mono"><option value="KRW" ${item.currency==='KRW'?'selected':''}>KRW</option><option value="USD" ${item.currency==='USD'?'selected':''}>USD</option></select></div>
+        <div class="col-span-1 text-center"><button onclick="this.closest('.row-item').remove()" class="text-rose-500 hover:text-rose-400 text-xs"><i class="fa-solid fa-xmark"></i></button></div>`;
+        list.appendChild(div);
+    });
+}
+function closeModal(){document.getElementById('portfolioModal').classList.add('hidden')}
+function addPortfolioRow(){
+    const map=getMap();const div=document.createElement('div');div.className='grid grid-cols-12 gap-1.5 items-center bg-slate-900/60 p-2 rounded-md row-item fade-in';
+    div.innerHTML=`<div class="col-span-3"><select class="w-full bg-slate-800 text-white text-[10px] rounded-md p-1.5 p-coin border border-white/5 mono">${map.map(c=>`<option value="${c.id}">${c.symbol} ${c.name}</option>`).join('')}</select></div>
+    <div class="col-span-3"><input type="number" class="w-full bg-slate-800 text-white text-[10px] rounded-md p-1.5 p-amt border border-white/5 mono" value="0"></div>
+    <div class="col-span-3"><input type="number" class="w-full bg-slate-800 text-white text-[10px] rounded-md p-1.5 p-price border border-white/5 mono" value="0" step="any"></div>
+    <div class="col-span-2"><select class="w-full bg-slate-800 text-white text-[10px] rounded-md p-1.5 p-curr border border-white/5 mono"><option value="KRW">KRW</option><option value="USD">USD</option></select></div>
+    <div class="col-span-1 text-center"><button onclick="this.closest('.row-item').remove()" class="text-rose-500 hover:text-rose-400 text-xs"><i class="fa-solid fa-xmark"></i></button></div>`;
+    document.getElementById('modal-inputs').appendChild(div);
+}
+function savePortfolio(){
+    const p=Array.from(document.querySelectorAll('.row-item')).map(r=>({id:r.querySelector('.p-coin').value,amount:parseFloat(r.querySelector('.p-amt').value),avgBuyPrice:parseFloat(r.querySelector('.p-price').value),currency:r.querySelector('.p-curr').value})).filter(i=>i.amount>0);
+    setPort(p);saveLS();updateUI();closeModal();
+}
+
+// ===== SAVE =====
+function getCustomSymbols(mode){
+    return mode==='crypto'?customCoinMap:mode==='stock_kr'?customStockKR:customStockUS;
+}
+function saveCustomSymbol(mode,item){
+    const arr=getCustomSymbols(mode);if(!arr.find(x=>x.id===item.id))arr.push(item);
+    const k=mode==='crypto'?'ci_customCoinMap':mode==='stock_kr'?'ci_customStockKR':'ci_customStockUS';
+    try{localStorage.setItem(k,JSON.stringify(arr))}catch(e){}
+}
+function removeCustomSymbol(mode,id){
+    if(mode==='crypto')customCoinMap=customCoinMap.filter(x=>x.id!==id);
+    else if(mode==='stock_kr')customStockKR=customStockKR.filter(x=>x.id!==id);
+    else customStockUS=customStockUS.filter(x=>x.id!==id);
+    const k=mode==='crypto'?'ci_customCoinMap':mode==='stock_kr'?'ci_customStockKR':'ci_customStockUS';
+    try{localStorage.setItem(k,JSON.stringify(getCustomSymbols(mode)))}catch(e){}
+}
+function saveLS(){try{const s=(k,v)=>localStorage.setItem(k,JSON.stringify(v));s('ci_favCrypto',favCrypto);s('ci_favStockKR',favStockKR);s('ci_favStockUS',favStockUS);s('ci_portCrypto',portCrypto);s('ci_portStockKR',portStockKR);s('ci_portStockUS',portStockUS)}catch(e){}}
+
+// ===== ADD SYMBOL MODAL =====
+function openAddSymbolModal(){
+    document.getElementById('addSymbolModal').classList.remove('hidden');
+    const errEl=document.getElementById('add-symbol-error');errEl.classList.add('hidden');errEl.innerText='';
+    document.getElementById('add-crypto-fields').classList.toggle('hidden',currentMode!=='crypto');
+    document.getElementById('add-stockkr-fields').classList.toggle('hidden',currentMode!=='stock_kr');
+    document.getElementById('add-stockus-fields').classList.toggle('hidden',currentMode!=='stock_us');
+    const modeNames={'crypto':'암호화폐','stock_kr':'한국 주식','stock_us':'미국 주식'};
+    document.getElementById('add-symbol-desc').innerText=`현재 모드: ${modeNames[currentMode]} — 새 종목을 추가합니다`;
+    // Clear inputs
+    ['add-crypto-apiId','add-crypto-symbol','add-crypto-name','add-stockkr-code','add-stockkr-name','add-stockus-symbol','add-stockus-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+    // Color picker sync
+    ['crypto','stockkr','stockus'].forEach(m=>{
+        const cp=document.getElementById('add-'+m+'-color');
+        const hex=document.getElementById('add-'+m+'-color-hex');
+        if(cp&&hex){cp.value='#6366f1';hex.innerText='#6366f1';cp.onchange=()=>hex.innerText=cp.value}
+    });
+}
+function closeAddSymbolModal(){document.getElementById('addSymbolModal').classList.add('hidden')}
+
+function addSymbol(){
+    const errEl=document.getElementById('add-symbol-error');errEl.classList.add('hidden');
+    try{
+        if(currentMode==='crypto'){
+            const apiId=document.getElementById('add-crypto-apiId').value.trim().toLowerCase();
+            const symbol=document.getElementById('add-crypto-symbol').value.trim().toUpperCase();
+            const name=document.getElementById('add-crypto-name').value.trim();
+            const color=document.getElementById('add-crypto-color').value;
+            if(!apiId||!symbol||!name){errEl.innerText='모든 필드를 입력해주세요';errEl.classList.remove('hidden');return}
+            if(coinMap.find(c=>c.apiId===apiId||c.id===apiId)){errEl.innerText='이미 존재하는 종목입니다';errEl.classList.remove('hidden');return}
+            const item={id:apiId,symbol,apiId,name,color};
+            coinMap.push(item);
+            saveCustomSymbol('crypto',item);
+            showToast(`${name} (${symbol}) 추가 완료`);
+        }else if(currentMode==='stock_kr'){
+            const code=document.getElementById('add-stockkr-code').value.trim();
+            const market=document.getElementById('add-stockkr-market').value;
+            const name=document.getElementById('add-stockkr-name').value.trim();
+            const color=document.getElementById('add-stockkr-color').value;
+            if(!code||!name){errEl.innerText='종목코드와 종목명을 입력해주세요';errEl.classList.remove('hidden');return}
+            if(stockMapKR.find(c=>c.id===code)){errEl.innerText='이미 존재하는 종목입니다';errEl.classList.remove('hidden');return}
+            const item={id:code,symbol:code+'.'+market,name,color};
+            stockMapKR.push(item);
+            saveCustomSymbol('stock_kr',item);
+            showToast(`${name} (${code}) 추가 완료`);
+        }else{
+            const symbol=document.getElementById('add-stockus-symbol').value.trim().toUpperCase();
+            const name=document.getElementById('add-stockus-name').value.trim();
+            const color=document.getElementById('add-stockus-color').value;
+            if(!symbol||!name){errEl.innerText='티커 심볼과 종목명을 입력해주세요';errEl.classList.remove('hidden');return}
+            if(stockMapUS.find(c=>c.id===symbol)){errEl.innerText='이미 존재하는 종목입니다';errEl.classList.remove('hidden');return}
+            const item={id:symbol,symbol,name,color};
+            stockMapUS.push(item);
+            saveCustomSymbol('stock_us',item);
+            showToast(`${name} (${symbol}) 추가 완료`);
+        }
+        closeAddSymbolModal();
+        fetchData();
+    }catch(e){errEl.innerText='추가 중 오류 발생: '+e.message;errEl.classList.remove('hidden')}
+}
+function downloadHTML(){
+    let html="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+    const nb=`\nlet favCrypto=${JSON.stringify(favCrypto)};\nlet favStockKR=${JSON.stringify(favStockKR)};\nlet favStockUS=${JSON.stringify(favStockUS)};\nlet portCrypto=${JSON.stringify(portCrypto)};\nlet portStockKR=${JSON.stringify(portStockKR)};\nlet portStockUS=${JSON.stringify(portStockUS)};\nlet customCoinMap=${JSON.stringify(getCustomSymbols('crypto'))};\nlet customStockKR=${JSON.stringify(getCustomSymbols('stock_kr'))};\nlet customStockUS=${JSON.stringify(getCustomSymbols('stock_us'))};\n`;
+    html=html.replace(/\/\/\s*-- DATA_PERSISTENCE_START --[\s\S]*?\/\/\s*-- DATA_PERSISTENCE_END --/,`// -- DATA_PERSISTENCE_START --${nb}// -- DATA_PERSISTENCE_END --`);
+    const b=new Blob([html],{type:'text/html'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='CryptoInsight_Live.html';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);
+    showToast('파일이 다운로드 되었습니다');
+}
+function showToast(msg){const t=document.createElement('div');t.className='fixed bottom-6 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs px-4 py-2.5 rounded-lg shadow-xl border border-white/10 z-[100] fade-in';t.innerText=msg;document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';t.style.transition='opacity .5s';setTimeout(()=>t.remove(),500)},2500)}
+
+// ===== UTILS =====
+function toggleFullscreen(){if(!document.fullscreenElement){document.documentElement.requestFullscreen().then(()=>{document.getElementById('icon-fullscreen').classList.replace('fa-expand','fa-compress');document.body.classList.add('fullscreen-active')}).catch(()=>{})}else{document.exitFullscreen().then(()=>{document.getElementById('icon-fullscreen').classList.replace('fa-compress','fa-expand');document.body.classList.remove('fullscreen-active')}).catch(()=>{})}}
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement){document.getElementById('icon-fullscreen').classList.replace('fa-compress','fa-expand');document.body.classList.remove('fullscreen-active')}});
+function toggleCompact(){isCompact=!isCompact;document.body.classList.toggle('compact-mode',isCompact);showToast(isCompact?'컴팩트 ON':'컴팩트 OFF')}
+
+function updateClock(){const n=new Date();document.getElementById('clock').innerText=n.toLocaleTimeString('ko-KR',{hour12:false});document.getElementById('date-display').innerText=n.toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\./g,'.').replace(/\s/g,'')}
+
+document.addEventListener('keydown',e=>{
+    if(e.key==='F11'){e.preventDefault();toggleFullscreen()}
+    const inp=document.activeElement.tagName==='INPUT'||document.activeElement.tagName==='SELECT';
+    if(!inp&&!e.ctrlKey&&!e.metaKey){if(e.key==='r')manualRefresh();if(e.key==='c')toggleCompact();if(e.key==='1')switchMode('crypto');if(e.key==='2')switchMode('stock_kr');if(e.key==='3')switchMode('stock_us')}
+    if(e.key==='Escape'){closeModal();closeFavoritesModal();closeAddSymbolModal()}
+});
+
+// ===== INIT =====
+initCharts();updateClock();setInterval(updateClock,1000);
+document.getElementById('log-session').innerText='세션:'+sessionStart.toLocaleTimeString('ko-KR',{hour12:false,hour:'2-digit',minute:'2-digit'})+'~';
+
+// Load cached data first for instant display
+(function loadCacheAndFetch(){
+    const cached=loadDataCache(currentMode);
+    if(cached&&cached.data.length){
+        setData(cached.data);
+        if(cached.rate)exchangeRate=cached.rate;
+        document.getElementById('nav-exchange-rate').innerText=exchangeRate.toLocaleString('ko-KR',{minimumFractionDigits:2,maximumFractionDigits:2});
+        if(!selectedId||!cached.data.find(c=>c.id===selectedId))selectedId=cached.data[0].id;
+        updateUI();
+        const dot=document.getElementById('api-status-dot');
+        const txt=document.getElementById('api-status-text');
+        dot.className='w-1.5 h-1.5 rounded-full bg-amber-400';
+        txt.innerText='캐시 ('+fmtCacheAge(cached.ts)+')';
+        showToast('캐시 데이터 로드 → 백그라운드 갱신 중...');
+    }
+    // Then fetch fresh data
+    fetchData();
+})();
+</script>
+</body>
+</html>
