@@ -1,0 +1,179 @@
+@keyframes language_item_drop {
+    from {
+      margin-top:-50px;
+      opacity: 0;
+    }
+    70% {
+      margin-top:20px;
+      animation-timing-function: ease-in;
+    }
+    to {
+      margin-top:5px;
+      animation-timing-function: ease-out;
+      opacity: 1;
+    }
+  }
+
+header {
+    position:fixed;
+    left:0;
+    top:0;
+    width: 100%;
+    height: 80px;
+    color:#fff;
+    display:flex;
+    flex-direction: row;
+    justify-content:space-between;
+    box-sizing: border-box;
+    padding:10px 100px;
+    z-index:50;
+    transition:all .3s;
+}
+
+header .company_brand_box {
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+header .company_brand_box a.brand {
+    transition:all .5s;
+    width: 200px;
+    height: 60px;
+    background-image:url('../images/header/scenergy_logo_4k.png');
+    background-size:contain;
+    background-repeat: no-repeat;
+
+}
+
+header ul.menu_list {
+    list-style: none;
+    padding: 0;
+    display:flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin:0 auto;
+}
+
+header ul.menu_list li.menu_item {
+    width: 150px;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size:2rem;
+    text-align: center;
+}
+
+header ul.menu_list li.menu_item a {
+    color:inherit;
+    text-decoration: none;
+    cursor:pointer;
+}
+
+header .option_box {
+    display:flex;
+    flex-direction:column;
+    justify-content: center;
+    position:relative;
+    align-items: center;
+}
+
+header .option_box svg.globe_icon {
+    width: 100px;
+    height: 30px;
+    cursor:pointer;
+}
+
+header .option_box ul.lang_list {
+    padding: 0;
+    list-style: none;
+    position:absolute;
+    top:80%;
+}
+
+header .option_box ul.lang_list li.lang_item_box {
+    color:#000;
+    background-color:#fff;
+    text-align: center;
+    padding:5px;
+    font-size:1rem;
+    font-weight:bold;
+    border-radius: 5px;
+    margin-top:5px;
+    line-height:1rem;
+    opacity: 0;
+    cursor:pointer;
+    width: 100px;
+}
+
+header .option_box ul.lang_list.list-animate li.lang_item_box {
+    animation:language_item_drop 0.9s;
+    animation-fill-mode:forwards;
+}
+
+header .option_box ul.lang_list.list-animate:nth-child(2) li.lang_item_box {
+    animation-delay: .5s;
+}
+
+header.black_theme {
+    color:#000;
+}
+
+header.black_theme g {
+    fill:#000;
+}
+
+header.black_theme .option_box ul.lang_list li.lang_item_box {
+    background-color:#000;
+    color:#fff;
+}
+
+@media all and (max-width:1280px){
+
+    header {
+        padding: 10px 25px;
+    }
+
+    header .company_brand_box a.brand {
+        font-size:1.5rem;
+        padding:10px 25px;
+        width: 100px;
+    }
+
+    header ul.menu_list li.menu_item {
+        width: 100px;
+        font-size:1.5rem;
+    }
+}
+
+@media all and (max-width:768px){
+    header {
+        padding: 10px 10px 0px 10px;
+        height:50px;
+    }
+
+    header .company_brand_box a.brand {
+        padding: 0px 10px;
+        width: 50px;
+    }
+
+    header ul.menu_list li.menu_item {
+        width: 25%;
+        font-size:1rem;
+    }
+
+    header .option_box svg.globe_icon {
+        width: 30px;
+    }
+
+    header .option_box ul.lang_list li.lang_item_box {
+        width: 30px;
+    }
+}
+
+@media all and (max-width:768px){
+    header ul.menu_list {
+        display:none;
+    }
+}
