@@ -552,19 +552,99 @@ body:hover #mouse-spot{opacity:1}
   transform:translateX(-50%);color:#cfd6e4;
   font-size:11px;letter-spacing:3px;z-index:5;
 }
-/* Marquee embedded inside hero: sits at the very bottom, overriding the
-   default standalone-strip spacing. */
-.hero-marquee{
+/* Live data log strip embedded at bottom of hero.
+   Terminal/telemetry aesthetic — replaces the loud gradient marquee. */
+.hero-datalog{
   position:absolute;
   left:0;right:0;bottom:0;
-  margin:0 !important;
-  padding:18px 0 !important;
   z-index:4;
-  background:linear-gradient(90deg,rgba(6,10,20,.7),rgba(255,138,59,.08),rgba(6,10,20,.7));
+  padding:11px 24px;
+  background:linear-gradient(180deg,rgba(6,10,20,0) 0%,rgba(6,10,20,.9) 45%,rgba(6,10,20,.95) 100%);
+  border-top:1px solid rgba(122,255,180,.12);
+  font-family:'JetBrains Mono','Fira Code','Menlo','Consolas','Courier New',monospace;
+  font-size:12.5px;
+  letter-spacing:.3px;
+  white-space:nowrap;
+  overflow:hidden;
   backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  color:rgba(190,220,205,.78);
 }
-.hero-marquee .marquee-track span{
-  font-size:clamp(22px,3vw,42px) !important;
+.hero-datalog::before{
+  content:'';position:absolute;inset:0;
+  background:
+    repeating-linear-gradient(180deg,rgba(122,255,180,.025) 0 1px,transparent 1px 3px);
+  pointer-events:none;
+}
+.hero-datalog .dl-inner{
+  display:flex;align-items:center;gap:14px;
+  position:relative;
+  width:max-content;
+}
+/* Fade edges on desktop so overflow looks intentional */
+.hero-datalog{
+  -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 40px,#000 calc(100% - 40px),transparent 100%);
+          mask-image:linear-gradient(90deg,transparent 0,#000 40px,#000 calc(100% - 40px),transparent 100%);
+}
+.hero-datalog .dl-live{
+  display:inline-flex;align-items:center;gap:6px;
+  color:#7affb4;font-weight:700;
+  text-shadow:0 0 10px rgba(122,255,180,.5);
+}
+.hero-datalog .dl-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:#7affb4;
+  box-shadow:0 0 12px rgba(122,255,180,.9),0 0 4px rgba(122,255,180,1);
+  animation:dlBlink 1.6s ease-in-out infinite;
+}
+@keyframes dlBlink{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.35;transform:scale(.85)}
+}
+.hero-datalog .dl-sep{
+  color:rgba(130,180,160,.32);
+  font-weight:300;
+}
+.hero-datalog .dl-label{
+  color:rgba(190,220,205,.5);
+  font-weight:500;
+}
+.hero-datalog .dl-val{
+  color:#e8fff1;
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+}
+.hero-datalog .dl-val.dl-ok{
+  color:#7affb4;
+}
+.hero-datalog .dl-unit{
+  color:rgba(190,220,205,.45);
+  font-weight:500;
+  margin-left:2px;
+}
+.hero-datalog .dl-cursor{
+  display:inline-block;
+  width:8px;height:13px;
+  background:#7affb4;
+  margin-left:4px;
+  box-shadow:0 0 8px rgba(122,255,180,.6);
+  animation:dlCursor 1.05s steps(2) infinite;
+  vertical-align:middle;
+  flex-shrink:0;
+}
+@keyframes dlCursor{
+  0%,50%{opacity:1}
+  50.01%,100%{opacity:0}
+}
+@media (max-width:960px){
+  .hero-datalog{font-size:11px;padding:9px 16px}
+  .hero-datalog .dl-inner{gap:10px}
+}
+@media (max-width:720px){
+  .hero-datalog{font-size:10px;padding:8px 12px;overflow-x:auto;-ms-overflow-style:none;scrollbar-width:none}
+  .hero-datalog::-webkit-scrollbar{display:none}
+  .hero-datalog .dl-inner{gap:8px}
+  .hero-datalog .dl-cursor{width:6px;height:10px}
 }
 .scroll-ind::after{
   content:'';display:block;width:1px;height:40px;
@@ -2959,21 +3039,26 @@ body:hover #mouse-spot{opacity:1}
     </div>
   </div>
   <div class="scroll-ind">SCROLL</div>
-  <!-- Marquee strip embedded at bottom of hero so snap does not skip it -->
-  <div class="marquee hero-marquee">
-    <div class="marquee-track">
-      <span>태양광 모듈</span>
-      <span>스마트 CCTV</span>
-      <span>PVSYST 컨설팅</span>
-      <span>드론 점검</span>
-      <span>옥상 임대</span>
-      <span>LG 파트너</span>
-      <span>태양광 모듈</span>
-      <span>스마트 CCTV</span>
-      <span>PVSYST 컨설팅</span>
-      <span>드론 점검</span>
-      <span>옥상 임대</span>
-      <span>LG 파트너</span>
+  <!-- Live data log strip (terminal / telemetry aesthetic) -->
+  <div class="hero-datalog" id="heroDatalog" aria-hidden="true">
+    <div class="dl-inner">
+      <span class="dl-live"><span class="dl-dot"></span>LIVE</span>
+      <span class="dl-sep">│</span>
+      <span class="dl-label">MONITORING_SITES</span>
+      <span class="dl-val" data-dl="sites">28</span>
+      <span class="dl-sep">│</span>
+      <span class="dl-label">GEN_TOTAL</span>
+      <span class="dl-val" data-dl="gen">12.40<span class="dl-unit"> GWh</span></span>
+      <span class="dl-sep">│</span>
+      <span class="dl-label">CO2_SAVED</span>
+      <span class="dl-val" data-dl="co2">8,520<span class="dl-unit"> tCO₂</span></span>
+      <span class="dl-sep">│</span>
+      <span class="dl-label">UPTIME</span>
+      <span class="dl-val" data-dl="uptime">98.7<span class="dl-unit">%</span></span>
+      <span class="dl-sep">│</span>
+      <span class="dl-label">LG_PARTNER</span>
+      <span class="dl-val dl-ok">OK</span>
+      <span class="dl-cursor"></span>
     </div>
   </div>
 </section>
@@ -4680,6 +4765,28 @@ document.head.appendChild(styleDyn);
       }
     });
   });
+})();
+
+/* ================== Hero datalog ticker ================== */
+(function(){
+  const el = document.getElementById('heroDatalog');
+  if(!el) return;
+  const gen    = el.querySelector('[data-dl="gen"]');
+  const co2    = el.querySelector('[data-dl="co2"]');
+  const uptime = el.querySelector('[data-dl="uptime"]');
+  const sites  = el.querySelector('[data-dl="sites"]');
+  let g = 12.40, c = 8520, s = 28;
+  function tick(){
+    g += Math.random() * 0.015 + 0.002;
+    c += Math.floor(Math.random() * 4);
+    const u = (98.4 + Math.random() * 0.55);
+    if(Math.random() < 0.08) s = 28 + Math.floor(Math.random()*3);
+    if(gen)    gen.innerHTML    = g.toFixed(2) + '<span class="dl-unit"> GWh</span>';
+    if(co2)    co2.innerHTML    = c.toLocaleString() + '<span class="dl-unit"> tCO₂</span>';
+    if(uptime) uptime.innerHTML = u.toFixed(1) + '<span class="dl-unit">%</span>';
+    if(sites)  sites.textContent = s;
+  }
+  setInterval(tick, 2400);
 })();
 </script>
 </body>
