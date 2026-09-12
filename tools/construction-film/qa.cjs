@@ -21,7 +21,7 @@ const stats=page=>page.locator('.impact-values').innerText();
  await page.waitForFunction(()=>document.querySelector('#vision-film').currentTime>.1);
  const film=await page.locator('#vision-film').evaluate(v=>({muted:v.muted,loop:v.loop,controls:v.controls,width:v.videoWidth,height:v.videoHeight,duration:v.duration,src:v.currentSrc}));
  assert.equal(film.muted,true);assert.equal(film.loop,true);assert.equal(film.controls,false);
- assert.equal(film.width,1920);assert.ok(Math.abs(film.duration-38)<.1);
+ assert.equal(film.width,1920);assert.ok(Math.abs(film.duration-62)<.01);
  assert.equal(await page.locator('.vision-band,#solar-scene,#scene-toggle').count(),0);
  const model=await page.evaluate(()=>window.SCE_IMPACT);
  assert.ok(Math.abs(model.capacityKw/1000-30.8793888889)<.000001);
@@ -48,7 +48,7 @@ const stats=page=>page.locator('.impact-values').innerText();
   results.push({lang,stats:await stats(page)});
  }
  await page.locator('#language').blur();
- await pauseSeek(page,37.7);await page.locator('#vision-film').evaluate(v=>v.play());
+ await pauseSeek(page,61.7);await page.locator('#vision-film').evaluate(v=>v.play());
  await page.waitForFunction(()=>document.querySelector('#vision-film').currentTime<3);
  assert.equal(await page.locator('[data-impact="trees"]').innerText(),'234.3만');
  const loopedAt=await page.locator('#vision-film').evaluate(v=>v.currentTime);
@@ -75,7 +75,7 @@ const stats=page=>page.locator('.impact-values').innerText();
   p.on('pageerror',e=>errors.push(e.message));
   p.on('request',r=>{if(r.url().includes('energy-construction-'))movies.push(r.url())});
   if(mode==='save-data')await p.addInitScript(()=>Object.defineProperty(navigator.connection,'saveData',{value:true}));
-  if(mode==='failed-video')await p.route('**/energy-construction-*.mp4',route=>route.abort());
+  if(mode==='failed-video')await p.route('**/energy-construction-*.mp4*',route=>route.abort());
   await p.goto(base+(mode==='deep-route'?'#cctv':''),{waitUntil:'domcontentloaded'});
   if(mobile||tablet){
    await p.waitForFunction(()=>document.querySelector('#vision-film').currentTime>.1);
