@@ -11,9 +11,24 @@ export function createSectionModel(kind = 'overview') {
   scene.add(root);
   const textures = new Set();
   const motions = [];
+  const focusMotions = [];
+  const focusViews = [];
+  const focusWeights = [0, 0, 0, 0];
+  let selectedFocus = -1;
+  let focusImmediate = false;
+  let previousTime = 0;
+  let transitionPending = false;
+  const focusTopics = {
+    modules: ['module-layers', 'mounting-interface', 'electrical-integration', 'complete-system'],
+    rooftop: ['roof-layout', 'roof-interface', 'maintenance-access', 'operating-system'],
+    pvsyst: ['sun-and-obstacles', 'tilt-and-spacing', 'electrical-loss-factors', 'scenario-comparison'],
+    drone: ['flight-coverage', 'dual-camera', 'inspection-location', 'maintenance-follow-up'],
+    cctv: ['stable-deployment', 'solar-and-battery', 'camera-coverage', 'remote-connection'],
+  };
   const unitBox = new THREE.BoxGeometry(1, 1, 1);
   const unitCylinder = new THREE.CylinderGeometry(1, 1, 1, 16);
   const unitSphere = new THREE.SphereGeometry(1, 20, 12);
+  const formedGeometries = new Map();
   const horizontalPlane = new THREE.PlaneGeometry(1, 1);
   horizontalPlane.rotateX(-Math.PI / 2);
   let seed = 71;
@@ -40,6 +55,10 @@ export function createSectionModel(kind = 'overview') {
     lens: new THREE.MeshPhysicalMaterial({ color: 0x102f42, metalness: 0.5, roughness: 0.05, clearcoat: 1 }),
     orange: standard(0xc98c3d, { metalness: 0.35, roughness: 0.43 }),
     amber: standard(0xffb343, { emissive: 0xc47710, emissiveIntensity: 0.5, roughness: 0.22 }),
+    copper: standard(0xb88654, { metalness: 0.85, roughness: 0.28 }),
+    safety: standard(0xb8a461, { roughness: 0.79 }),
+    paleBlue: standard(0x668295, { metalness: 0.46, roughness: 0.34 }),
+    enamel: new THREE.MeshPhysicalMaterial({ color: 0xd3d9d4, metalness: 0.16, roughness: 0.39, clearcoat: 0.25, clearcoatRoughness: 0.38 }),
   };
 
   function canvasTexture(width, height, draw) {
@@ -141,8 +160,8 @@ export function createSectionModel(kind = 'overview') {
   mat.arrayCells.metalness = 0.08;
   mat.arrayCells.roughness = 0.37;
   mat.arrayCells.clearcoat = 0.35;
-  mat.arrayCells.clearcoatRoughness = 0.26;
-  mat.arrayCells.envMapIntensity = 0.3;
+  mat.arrayCells.clearcoatRoughness = 0.21;
+  mat.arrayCells.envMapIntensity = 0.41;
   const concreteGrain = canvasTexture(128, 128, (ctx, w, h) => {
     const pixels = ctx.createImageData(w, h);
     for (let i = 0; i < pixels.data.length; i += 4) {
@@ -158,7 +177,51 @@ export function createSectionModel(kind = 'overview') {
     concreteGrain.wrapS = concreteGrain.wrapT = THREE.RepeatWrapping;
     concreteGrain.repeat.set(5, 5);
     mat.concrete.map = concreteGrain;
+    mat.concrete.bumpMap = concreteGrain;
+    mat.concrete.bumpScale = 0.018;
   }
+  const metalGrain = canvasTexture(128, 128, (ctx, w, h) => {
+    ctx.fillStyle = '#bbc4c8';
+    ctx.fillRect(0, 0, w, h);
+    for (let y = 0; y < h; y += 1) {
+      const shade = 140 + Math.round(random() * 70);
+      ctx.strokeStyle = `rgba(${shade},${shade},${shade},.16)`;
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+  });
+  if (metalGrain) {
+    metalGrain.colorSpace = THREE.NoColorSpace;
+    metalGrain.wrapS = metalGrain.wrapT = THREE.RepeatWrapping;
+    metalGrain.repeat.set(2, 6);
+    mat.aluminium.roughnessMap = metalGrain;
+    mat.satin.roughnessMap = metalGrain;
+  }
+  const powderCoat = canvasTexture(128, 128, (ctx, w, h) => {
+    const pixels = ctx.createImageData(w, h);
+    for (let i = 0; i < pixels.data.length; i += 4) {
+      const value = 188 + Math.round(random() * 36);
+      pixels.data[i] = pixels.data[i + 1] = pixels.data[i + 2] = value;
+      pixels.data[i + 3] = 255;
+    }
+    ctx.putImageData(pixels, 0, 0);
+  });
+  if (powderCoat) {
+    powderCoat.colorSpace = THREE.NoColorSpace;
+    powderCoat.wrapS = powderCoat.wrapT = THREE.RepeatWrapping;
+    powderCoat.repeat.set(3, 4);
+    mat.enamel.roughnessMap = powderCoat;
+    mat.enamel.bumpMap = powderCoat;
+    mat.enamel.bumpScale = 0.0025;
+  }
+  const contactOcclusion = canvasTexture(128, 128, (ctx, w, h) => {
+    const falloff = ctx.createRadialGradient(w / 2, h / 2, 12, w / 2, h / 2, 62);
+    falloff.addColorStop(0, 'rgba(30,44,39,.36)');
+    falloff.addColorStop(0.45, 'rgba(30,44,39,.23)');
+    falloff.addColorStop(1, 'rgba(30,44,39,0)');
+    ctx.fillStyle = falloff; ctx.fillRect(0, 0, w, h);
+  });
+  const contactMaterial = new THREE.MeshBasicMaterial({ map: contactOcclusion, transparent: true, opacity: 0.62, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1 });
+  mat.contactOcclusion = contactMaterial;
 
   function mesh(geometry, material, parent = root) {
     const object = new THREE.Mesh(geometry, material);
@@ -172,6 +235,35 @@ export function createSectionModel(kind = 'overview') {
     object.scale.set(width, height, depth);
     object.position.set(x, y, z);
     return object;
+  }
+  // Formed sheet metal and cast housings catch a thin highlight along real radiused edges.
+  function formedBox(width, height, depth, radius, material, x = 0, y = 0, z = 0, parent = root) {
+    const r = Math.min(radius, width / 5, height / 5, depth / 3);
+    const key = `${width}/${height}/${depth}/${r}`;
+    let geometry = formedGeometries.get(key);
+    if (!geometry) {
+      const bevel = r * 0.6;
+      const hw = width / 2 - bevel;
+      const hh = height / 2 - bevel;
+      const corner = r * 0.7;
+      const shape = new THREE.Shape();
+      shape.moveTo(-hw + corner, -hh);
+      shape.lineTo(hw - corner, -hh); shape.quadraticCurveTo(hw, -hh, hw, -hh + corner);
+      shape.lineTo(hw, hh - corner); shape.quadraticCurveTo(hw, hh, hw - corner, hh);
+      shape.lineTo(-hw + corner, hh); shape.quadraticCurveTo(-hw, hh, -hw, hh - corner);
+      shape.lineTo(-hw, -hh + corner); shape.quadraticCurveTo(-hw, -hh, -hw + corner, -hh);
+      geometry = new THREE.ExtrudeGeometry(shape, { depth: depth - bevel * 2, steps: 1, bevelEnabled: true, bevelSegments: 2, bevelSize: bevel, bevelThickness: bevel, curveSegments: 3 });
+      geometry.translate(0, 0, -depth / 2 + bevel);
+      formedGeometries.set(key, geometry);
+    }
+    const object = mesh(geometry, material, parent); object.position.set(x, y, z);
+    return object;
+  }
+  function contactPatch(width, depth, x, y, z, parent = root) {
+    const patch = mesh(horizontalPlane, contactMaterial, parent);
+    patch.scale.set(width, 1, depth); patch.position.set(x, y, z);
+    patch.castShadow = false; patch.receiveShadow = false;
+    return patch;
   }
   function sphere(radius, material, x = 0, y = 0, z = 0, parent = root, scale = [1, 1, 1]) {
     const object = mesh(unitSphere, material, parent);
@@ -196,6 +288,46 @@ export function createSectionModel(kind = 'overview') {
   function cable(points, radius, material, parent = root) {
     const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)));
     return mesh(new THREE.TubeGeometry(curve, 24, radius, 5, false), material, parent);
+  }
+
+  function outline(points, { color = 0xb9975e, dashed = false, opacity = 0.65 } = {}, parent = root) {
+    const material = dashed
+      ? new THREE.LineDashedMaterial({ color, dashSize: 0.16, gapSize: 0.12, transparent: true, opacity, depthWrite: false })
+      : new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false });
+    const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(points.map(p => new THREE.Vector3(...p))), material);
+    if (dashed) line.computeLineDistances();
+    parent.add(line);
+    return line;
+  }
+
+  function focusView(index, center, width, height, direction) {
+    focusViews[index] = { center: new THREE.Vector3(...center), width, height, direction: new THREE.Vector3(...direction).normalize() };
+  }
+
+  function fasteners(parent, positions, radius = 0.012) {
+    const geometry = new THREE.CylinderGeometry(radius, radius, radius * 0.9, 6);
+    const bolts = new THREE.InstancedMesh(geometry, mat.satin, positions.length);
+    const transform = new THREE.Object3D();
+    positions.forEach((position, index) => {
+      transform.position.set(...position); transform.updateMatrix(); bolts.setMatrixAt(index, transform.matrix);
+    });
+    bolts.castShadow = true; bolts.receiveShadow = true; parent.add(bolts);
+    return bolts;
+  }
+
+  function enclosure(x, y, z, parent = root) {
+    const group = new THREE.Group(); group.position.set(x, y, z); parent.add(group);
+    formedBox(0.78, 1.25, 0.44, 0.019, mat.enamel, 0, 0, 0, group);
+    formedBox(0.731, 1.187, 0.016, 0.013, mat.rubber, 0, 0, 0.224, group);
+    formedBox(0.72, 1.17, 0.035, 0.012, mat.enamel, 0, 0, 0.238, group);
+    formedBox(0.035, 0.2, 0.055, 0.008, mat.blackMetal, 0.25, 0, 0.273, group);
+    for (let i = 0; i < 5; i += 1) {
+      box(0.39, 0.02, 0.02, mat.blackMetal, -0.05, -0.27 - i * 0.05, 0.263, group);
+      box(0.4, 0.014, 0.035, mat.enamel, -0.05, -0.255 - i * 0.05, 0.271, group).rotation.x = -0.2;
+    }
+    for (const yy of [-0.41, 0.41]) formedBox(0.033, 0.12, 0.025, 0.005, mat.satin, -0.367, yy, 0.255, group);
+    for (const xx of [-0.25, 0.25]) cylinder(0.035, 0.08, mat.rubber, xx, -0.67, 0, group);
+    return group;
   }
 
   /** Module top is local +Y. The dimensions reflect a current full-size PV module. */
@@ -309,10 +441,19 @@ export function createSectionModel(kind = 'overview') {
     group.position.set(x, y, z);
     group.scale.setScalar(scale);
     parent.add(group);
-    box(0.72, 1.1, 0.32, mat.polymer, 0, 0, 0, group);
-    box(0.66, 1.04, 0.024, mat.white, 0, 0, 0.17, group);
-    box(0.23, 0.12, 0.013, mat.blackMetal, 0, 0.21, 0.191, group);
+    formedBox(0.72, 1.1, 0.32, 0.045, mat.enamel, 0, 0, 0, group);
+    formedBox(0.672, 1.052, 0.009, 0.003, mat.rubber, 0, 0, 0.157, group);
+    formedBox(0.66, 1.04, 0.031, 0.011, mat.enamel, 0, 0, 0.17, group);
+    formedBox(0.23, 0.12, 0.013, 0.004, mat.blackMetal, 0, 0.21, 0.191, group);
     box(0.055, 0.01, 0.018, standard(0x7da977, { emissive: 0x355d32, emissiveIntensity: 0.25 }), 0, 0.19, 0.204, group);
+    for (const xx of [-0.291, 0.291]) {
+      for (const yy of [-0.468, 0.468]) {
+        const screw = cylinder(0.01, 0.008, mat.satin, xx, yy, 0.189, group); screw.rotation.x = Math.PI / 2;
+      }
+    }
+    for (const xx of [-0.351, 0.351]) {
+      for (let i = 0; i < 5; i += 1) box(0.018, 0.018, 0.12, mat.rubber, xx, -0.16 - i * 0.045, 0, group);
+    }
     for (let i = 0; i < 10; i += 1) box(0.02, 0.78, 0.42, mat.aluminium, -0.31 + i * 0.069, -0.05, -0.2, group);
     for (const xx of [-0.2, -0.07, 0.08, 0.21]) {
       cylinder(0.028, 0.07, mat.blackMetal, xx, -0.59, 0, group);
@@ -321,9 +462,9 @@ export function createSectionModel(kind = 'overview') {
     return group;
   }
 
-  const hemi = new THREE.HemisphereLight(0xe1edf5, 0x7c8269, 1.3);
+  const hemi = new THREE.HemisphereLight(0xe1edf5, 0x7c8269, 1.6);
   scene.add(hemi);
-  const sun = new THREE.DirectionalLight(0xfff1d3, 3.1);
+  const sun = new THREE.DirectionalLight(0xfff1d3, 2.7);
   sun.position.set(-5, 10, 7);
   sun.castShadow = true;
   sun.shadow.mapSize.set(1024, 1024);
@@ -357,43 +498,107 @@ export function createSectionModel(kind = 'overview') {
 
   function makeModules() {
     const showcase = new THREE.Group();
-    showcase.position.set(0, 1.22, 0);
-    showcase.rotation.x = 0.72;
-    showcase.rotation.z = -0.035;
+    showcase.position.set(-0.78, 1.23, 0);
+    showcase.rotation.x = 0.68;
     root.add(showcase);
-    panel({ detailed: true, silver: true }, showcase);
-    // A second module reveals the depth of the frame and full-scale proportions.
-    const second = panel({ detailed: true, silver: true });
-    second.position.set(-0.64, 0.77, -0.56);
-    second.rotation.set(0.68, -0.05, 0.045);
+    // Independently modelled layers expose the function of each real assembly.
+    const frame = new THREE.Group(); showcase.add(frame);
+    for (const x of [-0.55, 0.55]) box(0.032, 0.039, 2.18, mat.aluminium, x, 0, 0, frame);
+    for (const z of [-1.074, 1.074]) box(1.1, 0.039, 0.032, mat.aluminium, 0, 0, z, frame);
+    const backsheet = box(1.075, 0.007, 2.125, mat.white, 0, -0.012, 0, showcase);
+    const activeCells = mesh(horizontalPlane, mat.cells, showcase);
+    activeCells.scale.set(1.07, 1, 2.12); activeCells.position.y = 0.008;
+    const cover = mesh(horizontalPlane, new THREE.MeshPhysicalMaterial({ color: 0xc8e0eb, metalness: 0.05, roughness: 0.1, transparent: true, opacity: 0.14, clearcoat: 1, side: THREE.DoubleSide, depthWrite: false }), showcase);
+    cover.scale.set(1.075, 1, 2.125); cover.position.y = 0.015; cover.castShadow = false;
+    const glassEdge = outline([[-0.537, 0, -1.062], [0.537, 0, -1.062], [0.537, 0, 1.062], [-0.537, 0, 1.062], [-0.537, 0, -1.062]], { color: 0x6e8c94, opacity: 0 }, showcase);
+    box(0.19, 0.044, 0.12, mat.blackMetal, 0, -0.05, -0.7, showcase);
+    fasteners(frame, [[-0.55, 0.025, -1.04], [0.55, 0.025, -1.04], [-0.55, 0.025, 1.04], [0.55, 0.025, 1.04]], 0.008);
+    const mounting = new THREE.Group(); mounting.position.x = -0.78; root.add(mounting);
     for (const x of [-0.4, 0.4]) {
-      bar([x, 0.065, 0.38], [x, 1.43, -0.24], 0.027, mat.aluminium);
-      bar([x, 0.065, -0.76], [x, 1.43, -0.24], 0.027, mat.aluminium);
-      box(0.09, 0.045, 1.28, mat.satin, x, 0.04, -0.19);
+      bar([x, 0.16, 0.42], [x, 1.48, -0.29], 0.027, mat.aluminium, mounting);
+      bar([x, 0.16, -0.87], [x, 1.48, -0.29], 0.027, mat.aluminium, mounting);
+      box(0.09, 0.045, 1.43, mat.satin, x, 0.13, -0.21, mounting);
+      for (const z of [-0.76, 0.37]) {
+        box(0.23, 0.055, 0.2, mat.aluminium, x, 0.095, z, mounting);
+        fasteners(mounting, [[x - 0.075, 0.13, z], [x + 0.075, 0.13, z]], 0.017);
+      }
     }
-    for (const x of [-1.02, -0.26]) {
-      box(0.1, 0.055, 0.22, mat.rubber, x, 0.035, 0.27);
-      bar([x, 0.04, -1.31], [x, 1.2, -1.1], 0.021, mat.satin);
+    for (const z of [-0.65, 0.65]) {
+      box(1.3, 0.042, 0.052, mat.aluminium, 0, -0.058, z, showcase);
+      for (const x of [-0.55, 0.55]) box(0.07, 0.028, 0.09, mat.satin, x, 0.025, z, showcase);
     }
-    cameraDirection.set(5.5, 4.6, 10).normalize();
-    orbit = 0.14;
-    motions.push((t) => {
-      sun.position.set(-4 + Math.sin(t * 0.33) * 3, 7, 5 + Math.cos(t * 0.27) * 2);
+    box(0.95, 2.03, 0.075, mat.satin, 1.08, 1.11, -0.55);
+    inverter(1.08, 1.39, -0.28, 0.97);
+    enclosure(2.07, 0.76, -0.25);
+    for (const x of [0.72, 1.44, 1.81, 2.33]) box(0.045, 0.32, 0.045, mat.aluminium, x, 0.19, -0.5);
+    box(1.93, 0.055, 0.17, mat.satin, 1.29, 0.28, -0.61);
+    cable([[-0.78, 1.31, -0.52], [-0.46, 0.85, -0.55], [-0.38, 0.31, -0.57], [0.81, 0.32, -0.57], [0.92, 0.73, -0.27]], 0.016, mat.rubber);
+    cable([[1.23, 0.77, -0.28], [1.3, 0.3, -0.61], [1.95, 0.3, -0.61], [2.0, 0.09, -0.26]], 0.02, mat.rubber);
+    box(4.62, 0.1, 2.94, mat.concrete, 0.37, 0.02, -0.04);
+    contactPatch(1.24, 1.03, 2.07, 0.073, -0.25);
+    contactPatch(1.12, 0.91, 1.07, 0.073, -0.36);
+    for (const x of [-1.18, -0.38]) contactPatch(0.55, 1.47, x, 0.073, -0.2);
+    const energyPath = outline([[-0.68, 0.23, 0.32], [-0.03, 0.23, 0.32], [0.54, 0.23, 0.32], [1.08, 0.23, 0.32], [2.06, 0.23, 0.32]], { opacity: 0.22 });
+    focusMotions.push(weights => {
+      cover.position.y = 0.015 + weights[0] * 0.31;
+      glassEdge.position.y = cover.position.y;
+      glassEdge.material.opacity = weights[0] * 0.75;
+      activeCells.position.y = 0.008 + weights[0] * 0.13;
+      backsheet.position.y = -0.012 - weights[0] * 0.065;
+      showcase.position.y = 1.23 + weights[1] * 0.15;
+      energyPath.material.opacity = 0.18 + weights[2] * 0.65 + weights[3] * 0.35;
     });
+    focusView(0, [-0.73, 1.35, 0], 2.45, 2.4, [3.1, 3.6, 8.5]);
+    focusView(1, [-0.78, 0.85, 0], 2.4, 2.1, [6, 3.6, 8.5]);
+    focusView(2, [1.29, 1.05, -0.15], 2.38, 2.35, [3.5, 2.7, 9]);
+    focusView(3, [0.39, 1.06, 0], 4.9, 2.7, [5.5, 4.8, 10]);
+    cameraDirection.set(5.5, 4.8, 10).normalize(); orbit = 0.07;
+    motions.push(t => { sun.position.set(-4 + Math.sin(t * 0.22) * 2, 7, 5 + Math.cos(t * 0.19)); });
   }
 
   function makeRooftop() {
     building({ width: 8.1, depth: 6.1, height: 2.65 });
-    panelArray({ columns: 6, rows: 2, y: 3.12, z: -0.15, ground: 2.72, spacing: 2.7, tilt: 0.15 });
-    // Maintenance aisle, drainage and rooftop extraction keep the architecture legible.
+    const array = panelArray({ columns: 5, rows: 2, x: -0.75, y: 3.12, z: -0.15, ground: 2.72, spacing: 2.7, tilt: 0.15 });
+    // A separate service corridor keeps ventilation, inspection and drainage accessible.
+    const aisle = new THREE.Group(); root.add(aisle);
+    box(0.56, 0.035, 5.6, mat.satin, 2.82, 2.752, -0.1, aisle);
+    for (let i = 0; i < 53; i += 1) box(0.51, 0.012, 0.021, mat.aluminium, 2.82, 2.776, -2.85 + i * 0.105, aisle);
+    for (const x of [2.54, 3.1]) box(0.018, 0.009, 5.6, mat.safety, x, 2.781, -0.1, aisle);
+    for (const x of [-3.12, -1.95, -0.78, 0.39, 1.56]) {
+      for (const z of [-2.11, -0.8, 0.6, 1.9]) {
+        box(0.23, 0.026, 0.26, mat.rubber, x, 2.742, z);
+        box(0.13, 0.072, 0.14, mat.aluminium, x, 2.79, z);
+        fasteners(root, [[x - 0.035, 2.831, z], [x + 0.035, 2.831, z]], 0.011);
+      }
+    }
     box(0.07, 2.66, 0.07, mat.aluminium, 4.05, 1.36, 2.95);
     box(8.24, 0.1, 0.11, mat.satin, 0, 2.65, 3.12);
     for (const z of [-1.85, 0, 1.85]) {
       cylinder(0.19, 0.28, mat.aluminium, 3.75, 2.91, z);
-      const cap = sphere(0.24, mat.satin, 3.75, 3.1, z, root, [1, 0.5, 1]);
-      motions.push((t) => { cap.rotation.y = t * 0.85; });
+      sphere(0.24, mat.satin, 3.75, 3.1, z, root, [1, 0.5, 1]);
     }
-    motions.push((t) => { sun.position.set(-6 + Math.sin(t * 0.19) * 4.5, 10, 6); });
+    // Fixed ladder, top handholds and anchored cable trays are actual installation details.
+    for (const x of [2.57, 3.08]) {
+      bar([x, 0.05, 3.3], [x, 3.3, 3.3], 0.027, mat.aluminium);
+      bar([x, 3.3, 3.3], [x, 3.3, 2.87], 0.027, mat.aluminium);
+    }
+    for (let i = 0; i < 11; i += 1) bar([2.57, 0.15 + i * 0.265, 3.3], [3.08, 0.15 + i * 0.265, 3.3], 0.024, mat.satin);
+    box(6.45, 0.065, 0.14, mat.satin, -0.45, 2.81, 2.83);
+    cable([[1.38, 3.07, 1.17], [1.58, 2.9, 2.72], [-2.66, 2.9, 2.77], [-2.66, 1.08, 3.19]], 0.03, mat.rubber);
+    inverter(-2.66, 1.52, 3.15, 0.84);
+    enclosure(-1.7, 0.89, 3.15);
+    const layoutLine = outline([[-3.73, 2.82, -2.87], [2.28, 2.82, -2.87], [2.28, 2.82, 2.5], [-3.73, 2.82, 2.5], [-3.73, 2.82, -2.87]], { dashed: true, opacity: 0.3 });
+    focusMotions.push(weights => {
+      array.position.y = 3.12 + weights[1] * 0.36;
+      layoutLine.material.opacity = 0.2 + weights[0] * 0.6;
+      aisle.position.y = weights[2] * 0.035;
+    });
+    focusView(0, [0, 2.65, 0], 9, 6.65, [9, 13, 11]);
+    focusView(1, [-0.65, 3.0, 1.5], 5.65, 3.5, [8, 3.7, 10]);
+    focusView(2, [2.6, 2.32, 0.6], 5.3, 4.65, [9, 10, 11]);
+    focusView(3, [-1.4, 1.93, 2.3], 5.9, 4.2, [5.5, 4.5, 12]);
+    cameraDirection.set(9, 8.2, 11).normalize(); orbit = 0.04;
+    motions.push(t => { sun.position.set(-6 + Math.sin(t * 0.16) * 3, 10, 6); });
   }
 
   function sunPath(center, radius, parent = root) {
@@ -411,15 +616,44 @@ export function createSectionModel(kind = 'overview') {
       sun.position.copy(marker.position).multiplyScalar(2.6);
       sun.position.y = Math.max(3.8, sun.position.y);
     });
+    return { line, marker };
   }
 
   function makePvsyst() {
-    box(7.9, 0.22, 6.2, mat.concrete, 0, 0.11, 0);
-    panelArray({ columns: 4, rows: 2, x: -0.8, y: 0.82, z: 0.1, ground: 0.23, tilt: 0.28, spacing: 2.58 });
+    box(8.8, 0.22, 6.5, mat.concrete, 0.15, 0.11, 0);
+    const rows = [-1.25, 1.33].map(z => panelArray({ columns: 4, rows: 1, x: -0.8, y: 0.82, z, ground: 0.23, tilt: 0.28 }));
     box(1.25, 1.9, 1.65, mat.plaster, 2.5, 1.17, -0.7);
     box(1.4, 0.14, 1.8, mat.satin, 2.5, 2.18, -0.7);
     for (let i = 0; i < 5; i += 1) box(0.5, 0.055, 0.03, mat.blackMetal, 2.5, 1.4 + i * 0.12, 0.139);
-    sunPath([0, 0.1, -2.5], 4.15);
+    inverter(3.34, 0.98, 1.42, 0.74);
+    box(0.7, 1.65, 0.07, mat.satin, 3.34, 1.07, 1.18);
+    cable([[1.0, 0.73, 1.28], [1.35, 0.27, 1.64], [3.3, 0.27, 1.64], [3.34, 0.55, 1.43]], 0.024, mat.rubber);
+    const path = sunPath([0, 0.1, -2.5], 4.15);
+    const rays = [];
+    for (const x of [-2.55, -0.8, 0.95]) rays.push(outline([[2.5, 4.3, -2.5], [x, 0.86, 1.23]], { dashed: true, opacity: 0.2 }));
+    const spacing = outline([[-3.54, 0.27, -1.25], [-3.54, 0.27, 1.33]], { color: 0x547c73, opacity: 0.25 });
+    for (const z of [-1.25, 1.33]) outline([[-3.72, 0.27, z], [-3.36, 0.27, z]], { color: 0x547c73, opacity: 0.65 });
+    focusMotions.push(weights => {
+      rows[0].position.z = -1.25 - weights[1] * 0.28;
+      rows[1].position.z = 1.33 + weights[1] * 0.28;
+      for (const row of rows) {
+        for (const child of row.children) if (child.isGroup) child.rotation.x = 0.28 + weights[1] * 0.08;
+      }
+      rays.forEach(ray => { ray.material.opacity = weights[0] * 0.44 + weights[3] * 0.17; });
+      spacing.material.opacity = 0.16 + weights[1] * 0.74;
+      path.line.material.opacity = 0.45 + weights[0] * 0.4;
+    });
+    motions.push(() => {
+      for (const ray of rays) {
+        const position = ray.geometry.attributes.position;
+        position.setXYZ(0, path.marker.position.x, path.marker.position.y, path.marker.position.z);
+        position.needsUpdate = true; ray.computeLineDistances();
+      }
+    });
+    focusView(0, [0.3, 2.06, -0.35], 9.6, 6.3, [9, 10, 11]);
+    focusView(1, [-0.96, 0.88, 0.08], 7.2, 4.4, [9, 7.3, 11]);
+    focusView(2, [1.5, 1.05, 0.9], 5.0, 3.6, [8, 6, 11]);
+    focusView(3, [0.2, 1.65, -0.2], 10, 6.8, [9, 12, 11]);
     cameraDirection.set(9, 9.8, 11).normalize();
     orbit = 0.03;
   }
@@ -427,12 +661,29 @@ export function createSectionModel(kind = 'overview') {
   function makeDrone() {
     box(6.5, 0.21, 4.9, mat.concrete, 0, 0.105, 0);
     panelArray({ columns: 5, rows: 2, y: 0.6, ground: 0.22, spacing: 2.3, tilt: 0.16 });
+    const flightPath = outline([[-2.0, 2.78, -1.24], [2.0, 2.78, -1.24], [2.0, 2.78, 1.18], [-2.0, 2.78, 1.18]], { dashed: true, opacity: 0.25 });
+    const inspectionPoint = new THREE.Group(); inspectionPoint.position.set(-1.17, 0.61, 1.15); inspectionPoint.rotation.x = 0.16; root.add(inspectionPoint);
+    const thermalTexture = canvasTexture(128, 256, (ctx, w, h) => {
+      ctx.fillStyle = '#152f5a'; ctx.fillRect(0, 0, w, h);
+      const bloom = ctx.createRadialGradient(w * 0.42, h * 0.47, 1, w * 0.42, h * 0.47, 47);
+      bloom.addColorStop(0, '#fff1a5'); bloom.addColorStop(0.2, '#f9c150'); bloom.addColorStop(0.43, '#d26437'); bloom.addColorStop(0.68, '#87435d'); bloom.addColorStop(1, 'rgba(21,47,90,0)');
+      ctx.fillStyle = bloom; ctx.fillRect(0, 0, w, h);
+      ctx.strokeStyle = 'rgba(180,200,210,.25)'; ctx.lineWidth = 1;
+      for (let col = 1; col < 6; col += 1) { ctx.beginPath(); ctx.moveTo(col * w / 6, 0); ctx.lineTo(col * w / 6, h); ctx.stroke(); }
+      for (let row = 1; row < 12; row += 1) { ctx.beginPath(); ctx.moveTo(0, row * h / 12); ctx.lineTo(w, row * h / 12); ctx.stroke(); }
+    });
+    const thermal = mesh(horizontalPlane, new THREE.MeshBasicMaterial({ map: thermalTexture, color: 0xffffff, transparent: true, opacity: 0, depthWrite: false }), inspectionPoint);
+    thermal.position.y = 0.039; thermal.scale.set(1.075, 1, 2.125); thermal.castShadow = false;
+    const inspectionBoundary = outline([[-0.57, 0.041, -1.1], [0.57, 0.041, -1.1], [0.57, 0.041, 1.1], [-0.57, 0.041, 1.1], [-0.57, 0.041, -1.1]], { opacity: 0.2 }, inspectionPoint);
     const drone = new THREE.Group();
     root.add(drone);
     const body = sphere(0.33, mat.polymer, 0, 0, 0, drone, [1, 0.58, 1.55]);
     body.rotation.x = -0.035;
     box(0.33, 0.15, 0.32, mat.blackMetal, 0, 0.09, -0.22, drone);
     box(0.19, 0.018, 0.24, mat.satin, 0, 0.174, -0.22, drone);
+    for (const x of [-0.17, 0.17]) box(0.023, 0.05, 0.17, mat.satin, x, 0.16, -0.22, drone);
+    for (let i = 0; i < 5; i += 1) box(0.015, 0.011, 0.1, mat.blackMetal, -0.075 + i * 0.038, 0.19, -0.27, drone);
+    fasteners(drone, [[-0.18, 0.13, -0.29], [0.18, 0.13, -0.29], [-0.17, 0.16, 0.17], [0.17, 0.16, 0.17]], 0.013);
     const rotors = [];
     for (const x of [-1, 1]) {
       for (const z of [-1, 1]) {
@@ -462,16 +713,32 @@ export function createSectionModel(kind = 'overview') {
     drone.add(gimbal);
     bar([-0.14, 0.08, 0], [-0.14, -0.07, 0], 0.023, mat.aluminium, gimbal);
     bar([0.14, 0.08, 0], [0.14, -0.07, 0], 0.023, mat.aluminium, gimbal);
-    box(0.25, 0.18, 0.2, mat.blackMetal, 0, -0.045, 0.025, gimbal);
-    const lens = cylinder(0.066, 0.052, mat.lens, 0, -0.045, 0.15, gimbal);
+    box(0.31, 0.19, 0.21, mat.blackMetal, 0, -0.045, 0.025, gimbal);
+    const lens = cylinder(0.062, 0.052, mat.lens, -0.071, -0.045, 0.15, gimbal);
     lens.rotation.x = Math.PI / 2;
+    const thermalLens = cylinder(0.049, 0.05, mat.copper, 0.085, -0.045, 0.15, gimbal); thermalLens.rotation.x = Math.PI / 2;
+    const thermalGlass = cylinder(0.038, 0.054, mat.lens, 0.085, -0.045, 0.16, gimbal); thermalGlass.rotation.x = Math.PI / 2;
     sphere(0.018, mat.amber, -0.24, 0.01, 0.25, drone);
+    focusMotions.push(weights => {
+      flightPath.material.opacity = 0.12 + weights[0] * 0.58;
+      // Illustrative thermal overlay carries no readings or diagnostic claims.
+      thermal.material.opacity = weights[2] * 0.74;
+      inspectionBoundary.material.opacity = 0.15 + weights[2] * 0.75 + weights[3] * 0.55;
+    });
     motions.push((t) => {
-      drone.position.set(Math.sin(t * 0.41) * 1.15, 2.75 + Math.sin(t * 0.71) * 0.12, Math.cos(t * 0.32) * 0.53);
-      drone.rotation.set(Math.sin(t * 0.41) * 0.035, Math.sin(t * 0.25) * 0.25, -Math.cos(t * 0.41) * 0.045);
+      const revisit = focusWeights[2] + focusWeights[3];
+      const x = Math.sin(t * 0.3) * 1.65;
+      const z = Math.cos(t * 0.22) * 0.75;
+      drone.position.set(THREE.MathUtils.lerp(x, -1.17, revisit * 0.84), 2.75 + Math.sin(t * 0.71) * 0.07, THREE.MathUtils.lerp(z, 1.15, revisit * 0.84));
+      drone.rotation.set(Math.sin(t * 0.3) * 0.022, Math.sin(t * 0.22) * 0.22, -Math.cos(t * 0.3) * 0.034);
       gimbal.rotation.x = 0.35 + Math.sin(t * 0.31) * 0.2;
       for (const { rotor, sign } of rotors) rotor.rotation.y = t * 58 * sign;
+      if (focusViews[1]) focusViews[1].center.copy(drone.position).add(new THREE.Vector3(0, -0.06, 0.2));
     });
+    focusView(0, [0, 1.48, 0], 7.7, 5.2, [8, 9, 11]);
+    focusView(1, [0, 2.68, 0.2], 3.15, 2.45, [6, 2.7, 11]);
+    focusView(2, [-1.0, 1.25, 0.9], 4.1, 3.8, [7, 10, 11]);
+    focusView(3, [-0.65, 1.7, 0.52], 6.5, 4.5, [8, 7, 11]);
     cameraDirection.set(8, 7, 11).normalize();
     orbit = 0.04;
   }
@@ -480,11 +747,30 @@ export function createSectionModel(kind = 'overview') {
     const trailer = new THREE.Group();
     root.add(trailer);
     box(1.38, 0.16, 1.98, mat.satin, 0, 0.42, 0, trailer);
-    box(1.29, 0.82, 1.72, mat.polymer, 0, 0.92, 0.06, trailer);
-    box(1.34, 0.055, 1.8, mat.aluminium, 0, 1.36, 0.06, trailer);
-    box(0.8, 0.61, 0.025, mat.white, 0, 0.92, 0.936, trailer);
-    box(0.025, 0.12, 0.035, mat.blackMetal, 0.29, 0.94, 0.961, trailer);
-    for (let i = 0; i < 5; i += 1) box(0.36, 0.022, 0.034, mat.satin, -0.12, 0.72 + i * 0.065, 0.955, trailer);
+    formedBox(1.29, 0.065, 1.72, 0.018, mat.enamel, 0, 0.53, 0.06, trailer);
+    for (const x of [-0.622, 0.622]) {
+      formedBox(0.047, 0.82, 1.72, 0.014, mat.enamel, x, 0.92, 0.06, trailer);
+      for (let i = 0; i < 4; i += 1) box(0.052, 0.024, 0.31, mat.rubber, x, 0.98 + i * 0.058, -0.43, trailer);
+      for (const z of [-0.67, 0.81]) box(0.053, 0.025, 0.045, mat.satin, x, 1.24, z, trailer);
+    }
+    formedBox(1.29, 0.82, 0.047, 0.014, mat.enamel, 0, 0.92, -0.776, trailer);
+    for (const x of [-0.54, 0.54]) formedBox(0.21, 0.82, 0.045, 0.014, mat.enamel, x, 0.92, 0.9, trailer);
+    box(1.3, 0.011, 1.73, mat.rubber, 0, 1.332, 0.06, trailer);
+    formedBox(1.34, 0.055, 1.8, 0.018, mat.enamel, 0, 1.36, 0.06, trailer);
+    const door = new THREE.Group(); door.position.set(-0.4, 0.92, 0.936); trailer.add(door);
+    formedBox(0.812, 0.742, 0.013, 0.004, mat.rubber, 0.4, 0, -0.015, door);
+    formedBox(0.776, 0.706, 0.011, 0.003, mat.enamel, 0.4, 0, -0.027, door);
+    formedBox(0.8, 0.73, 0.035, 0.011, mat.enamel, 0.4, 0, 0, door);
+    box(0.025, 0.12, 0.035, mat.blackMetal, 0.7, 0.02, 0.025, door);
+    for (let i = 0; i < 5; i += 1) box(0.36, 0.022, 0.034, mat.satin, 0.3, -0.2 + i * 0.065, 0.02, door);
+    for (const y of [-0.24, 0.24]) box(0.034, 0.085, 0.035, mat.satin, 0, y, 0.025, door);
+    for (const x of [-0.3, 0, 0.3]) {
+      box(0.245, 0.44, 0.51, mat.blackMetal, x, 0.82, 0.24, trailer);
+      box(0.25, 0.035, 0.52, mat.satin, x, 1.055, 0.24, trailer);
+      for (const z of [0.12, 0.37]) cylinder(0.018, 0.035, mat.copper, x, 1.089, z, trailer);
+    }
+    cable([[-0.3, 1.09, 0.12], [0, 1.105, 0.12], [0.3, 1.09, 0.12], [0.44, 1.1, -0.24]], 0.018, mat.rubber, trailer);
+    box(0.28, 0.29, 0.14, mat.paleBlue, 0.37, 1.15, -0.53, trailer);
     for (const x of [-0.78, 0.78]) {
       const wheel = cylinder(0.32, 0.18, mat.rubber, x, 0.34, 0.18, trailer);
       wheel.rotation.z = Math.PI / 2;
@@ -492,11 +778,12 @@ export function createSectionModel(kind = 'overview') {
       rim.rotation.z = Math.PI / 2;
       const hub = cylinder(0.064, 0.21, mat.satin, x, 0.34, 0.18, trailer);
       hub.rotation.z = Math.PI / 2;
-      box(0.28, 0.055, 0.85, mat.aluminium, x, 0.7, 0.18, trailer);
+      formedBox(0.28, 0.055, 0.85, 0.018, mat.aluminium, x, 0.7, 0.18, trailer);
       for (const z of [-0.72, 0.72]) {
         box(0.65, 0.075, 0.075, mat.satin, x * 1.14, 0.38, z, trailer);
         cylinder(0.033, 0.36, mat.aluminium, x * 1.5, 0.23, z, trailer);
         box(0.27, 0.055, 0.27, mat.satin, x * 1.5, 0.04, z, trailer);
+        contactPatch(0.52, 0.52, x * 1.5, -0.025, z, trailer);
         bar([x * 1.5 - 0.08, 0.49, z], [x * 1.5 + 0.08, 0.49, z], 0.014, mat.blackMetal, trailer);
       }
     }
@@ -533,6 +820,22 @@ export function createSectionModel(kind = 'overview') {
       motions.push((t) => { cameraBall.rotation.y = Math.sin(t * 0.42 + x) * 0.48; });
     }
     cylinder(0.046, 0.065, mat.amber, 0, 0.07, 0, head);
+    const communication = new THREE.Group(); communication.position.set(0.2, 3.82, mastZ); trailer.add(communication);
+    formedBox(0.19, 0.3, 0.12, 0.012, mat.enamel, 0, 0, 0, communication);
+    for (const x of [-0.055, 0.055]) cylinder(0.011, 0.32, mat.blackMetal, x, 0.3, 0, communication);
+    box(0.024, 0.1, 0.14, mat.satin, -0.16, -0.03, 0, communication);
+    const coverage = outline([[-2.05, 0.037, 1.75], [-1.34, 0.037, 2.65], [0, 0.037, 3.1], [1.34, 0.037, 2.65], [2.05, 0.037, 1.75]], { dashed: true, opacity: 0 });
+    const coverageEdges = [outline([[0, 4.28, mastZ], [-2.05, 0.04, 1.75]], { opacity: 0 }), outline([[0, 4.28, mastZ], [2.05, 0.04, 1.75]], { opacity: 0 })];
+    focusMotions.push(weights => {
+      door.rotation.y = -weights[1] * 1.7;
+      roofPanel.rotation.x = 0.24 + weights[1] * 0.12;
+      coverage.material.opacity = weights[2] * 0.75;
+      coverageEdges.forEach(edge => { edge.material.opacity = weights[2] * 0.23; });
+    });
+    focusView(0, [0, 1.27, 0.35], 3.9, 3.35, [7, 5, 11]);
+    focusView(1, [0, 1.24, 0.25], 3.05, 2.6, [5, 3.2, 11]);
+    focusView(2, [0, 2.03, 0.74], 5.8, 5.15, [7, 5.5, 11]);
+    focusView(3, [0.08, 3.97, -0.74], 2.6, 2.3, [8, 3.5, 11]);
     motions.push((t) => { head.rotation.y = Math.sin(t * 0.37) * 0.62; });
     cameraDirection.set(7, 5, 11).normalize();
     orbit = 0.075;
@@ -609,27 +912,77 @@ export function createSectionModel(kind = 'overview') {
   const padding = kind === 'drone' ? 1.22 : 1.14;
   const span = Math.max(projectedHeight, projectedWidth / 1.2) * padding;
   let disposed = false;
+  let viewportAspect = 600 / 360;
+  const viewTarget = target.clone();
+  const viewDirection = cameraDirection.clone();
+  const blendedTarget = new THREE.Vector3();
+  const blendedDirection = new THREE.Vector3();
+  let focusSpan = span;
 
   function resize(width, height) {
-    const aspect = Math.max(0.5, width / Math.max(1, height));
-    const fittedSpan = Math.max(projectedHeight, projectedWidth / aspect) * padding;
-    camera.left = -fittedSpan * aspect / 2;
-    camera.right = fittedSpan * aspect / 2;
+    viewportAspect = Math.max(0.5, width / Math.max(1, height));
+    fitCamera();
+  }
+  function fitCamera() {
+    const weightSum = focusWeights.reduce((sum, weight) => sum + weight, 0);
+    let fittedSpan = Math.max(projectedHeight, projectedWidth / viewportAspect) * padding * (1 - weightSum);
+    for (let i = 0; i < focusViews.length; i += 1) {
+      const view = focusViews[i];
+      if (view) fittedSpan += Math.max(view.height, view.width / viewportAspect) * focusWeights[i] * 1.08;
+    }
+    focusSpan = fittedSpan;
+    camera.left = -fittedSpan * viewportAspect / 2;
+    camera.right = fittedSpan * viewportAspect / 2;
     camera.top = fittedSpan / 2;
     camera.bottom = -fittedSpan / 2;
     camera.updateProjectionMatrix();
   }
   resize(600, 360);
 
+  function setFocus(index = -1, { immediate = false } = {}) {
+    if (disposed) return;
+    const next = Number.isInteger(index) && focusViews[index] ? index : -1;
+    selectedFocus = next;
+    focusImmediate = immediate;
+    transitionPending = true;
+    if (immediate) {
+      for (let i = 0; i < focusWeights.length; i += 1) focusWeights[i] = i === selectedFocus ? 1 : 0;
+    }
+  }
+
   function update(timeSeconds = 0, pointer = { x: 0, y: 0 }) {
     if (disposed) return;
     const t = Number.isFinite(timeSeconds) ? timeSeconds : 0;
+    const delta = Math.max(0.001, Math.min(0.1, t - previousTime || 1 / 30));
+    previousTime = t;
+    const blend = focusImmediate ? 1 : 1 - Math.exp(-delta * 7);
+    let weightSum = 0;
+    transitionPending = false;
+    for (let i = 0; i < focusWeights.length; i += 1) {
+      const destination = i === selectedFocus ? 1 : 0;
+      focusWeights[i] += (destination - focusWeights[i]) * blend;
+      if (Math.abs(destination - focusWeights[i]) < 0.0005) focusWeights[i] = destination;
+      else transitionPending = true;
+      weightSum += focusWeights[i];
+    }
+    for (const updateFocus of focusMotions) updateFocus(focusWeights);
     for (const motion of motions) motion(t);
-    const angle = Math.sin(t * 0.18) * orbit + THREE.MathUtils.clamp(pointer.x || 0, -1, 1) * 0.035;
-    const direction = cameraDirection.clone().applyAxisAngle(THREE.Object3D.DEFAULT_UP, angle);
-    direction.y += THREE.MathUtils.clamp(pointer.y || 0, -1, 1) * 0.018;
-    camera.position.copy(direction.normalize()).multiplyScalar(orbitRadius).add(target);
-    camera.lookAt(target);
+    blendedTarget.copy(target).multiplyScalar(1 - weightSum);
+    blendedDirection.copy(cameraDirection).multiplyScalar(1 - weightSum);
+    for (let i = 0; i < focusViews.length; i += 1) {
+      if (!focusViews[i]) continue;
+      blendedTarget.addScaledVector(focusViews[i].center, focusWeights[i]);
+      blendedDirection.addScaledVector(focusViews[i].direction, focusWeights[i]);
+    }
+    viewTarget.copy(blendedTarget);
+    viewDirection.copy(blendedDirection).normalize();
+    const angle = Math.sin(t * 0.18) * orbit * (1 - weightSum * 0.66) + THREE.MathUtils.clamp(pointer.x || 0, -1, 1) * 0.025;
+    viewDirection.applyAxisAngle(THREE.Object3D.DEFAULT_UP, angle);
+    viewDirection.y += THREE.MathUtils.clamp(pointer.y || 0, -1, 1) * 0.014;
+    camera.position.copy(viewDirection.normalize()).multiplyScalar(orbitRadius).add(viewTarget);
+    camera.lookAt(viewTarget);
+    if (transitionPending || focusImmediate) fitCamera();
+    focusImmediate = false;
   }
 
   function dispose() {
@@ -653,5 +1006,11 @@ export function createSectionModel(kind = 'overview') {
   }
 
   update(0);
-  return { scene, camera, span, target, resize, update, dispose };
+  return {
+    scene, camera, span, target, resize, update, dispose, setFocus,
+    focusTopics: focusTopics[kind] || [],
+    getFocus: () => selectedFocus,
+    isTransitioning: () => transitionPending,
+    getView: () => ({ target: viewTarget.toArray(), position: camera.position.toArray(), span: focusSpan }),
+  };
 }

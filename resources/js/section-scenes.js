@@ -1,9 +1,9 @@
 import * as THREE from '../vendor/three.module.min.js';
-import { createSectionModel } from './section-models.js?v=20260912-2';
+import { createSectionModel } from './section-models.js?v=20260912-4';
 
 let mounted;
 
-/** Eight local views share a single WebGL renderer, rather than eight contexts. */
+/** Local views share one WebGL renderer, including the selected service detail. */
 export function initSectionScenes() {
   if (mounted) return mounted;
   const hosts = [...document.querySelectorAll('[data-scene]')];
@@ -20,10 +20,16 @@ export function initSectionScenes() {
   let bufferWidth = 0;
   let bufferHeight = 0;
 
+  const focusIndex = value => {
+    const index = Number(value);
+    return Number.isInteger(index) && index >= -1 && index <= 3 ? index : -1;
+  };
   const views = hosts.map(host => ({
     host,
+    sceneFrame: host.closest('[data-scene-frame]'),
     kind: host.dataset.scene,
     button: host.closest('[data-scene-frame]').querySelector('.scene-motion'),
+    focus: focusIndex(host.dataset.sceneFocus ?? host.closest('[data-scene-frame]').dataset.sceneFocus ?? -1),
     near: false,
     paused: motion.matches,
     userOverride: false,
@@ -41,6 +47,11 @@ export function initSectionScenes() {
     drawCount: 0,
   }));
   const byHost = new Map(views.map(view => [view.host, view]));
+  const bySceneId = new Map();
+  for (const view of views) {
+    if (view.host.id) bySceneId.set(view.host.id, view);
+    if (view.sceneFrame.id) bySceneId.set(view.sceneFrame.id, view);
+  }
   function control(view) {
     view.button.setAttribute('aria-pressed', String(view.paused));
     view.button.disabled = !view.ready || !available;
@@ -78,6 +89,8 @@ export function initSectionScenes() {
     if (view.model || view.failed) return;
     try {
       view.model = createSectionModel(view.kind);
+      // A service may be selected before its lazily created model is visible.
+      view.model.setFocus?.(view.focus, { immediate: true });
       view.canvas = document.createElement('canvas');
       view.canvas.className = 'scene-view-canvas';
       view.canvas.setAttribute('aria-hidden', 'true');
@@ -137,7 +150,8 @@ export function initSectionScenes() {
     if (!available || disposed || document.hidden) return false;
     const candidates = [];
     for (const view of views) {
-      if (!view.near || view.failed) continue;
+      // Explicitly exclude inactive routes, even if an observer entry is stale.
+      if (!view.near || view.failed || view.host.closest('[hidden]')) continue;
       const bounds = view.host.getBoundingClientRect();
       if (!bounds.width || !bounds.height) continue;
       initialize(view);
@@ -191,9 +205,33 @@ export function initSectionScenes() {
   }
   function resize() { views.forEach(view => { view.dirty = true; }); wake(); }
   function visibility() { if (document.hidden) stop(); else { lastTime = 0; lastRenderedAt = 0; wake(); } }
+  function sceneFocus(event) {
+    const { sceneId, index } = event.detail || {};
+    if (!Number.isInteger(index) || index < -1 || index > 3) return;
+    const view = bySceneId.get(sceneId);
+    if (!view) return;
+    view.focus = index;
+    view.sceneFrame.dataset.sceneFocus = String(index);
+    view.model?.setFocus?.(index, { immediate: motion.matches || view.paused });
+    view.dirty = true;
+    // A route can become visible and receive its focus before IntersectionObserver
+    // catches up. Read its actual bounds so paused views update on the same click.
+    const bounds = view.host.getBoundingClientRect();
+    view.near = !view.host.closest('[hidden]') && bounds.width > 0 && bounds.height > 0
+      && bounds.bottom > -180 && bounds.top < innerHeight + 180;
+    if (view.near) renderViews(0);
+    // Preserve pause/reduced-motion settings: wake only schedules the dirty frame,
+    // and the normal visibility filter decides whether animation should continue.
+    wake();
+  }
   function motionChange(event) {
     views.forEach(view => {
-      if (!view.userOverride) { view.paused = event.matches; view.dirty = true; control(view); }
+      if (!view.userOverride) {
+        view.paused = event.matches;
+        if (view.paused) view.model?.setFocus?.(view.focus, { immediate: true });
+        view.dirty = true;
+        control(view);
+      }
     });
     wake();
   }
@@ -252,6 +290,7 @@ export function initSectionScenes() {
   window.addEventListener('scroll', wake, { passive: true });
   window.addEventListener('resize', resize, { passive: true });
   document.addEventListener('visibilitychange', visibility);
+  window.addEventListener('sce:scenefocus', sceneFocus);
   motion.addEventListener('change', motionChange);
   mounted = {
     pauseAll() { views.forEach(view => { view.paused = true; view.userOverride = true; control(view); }); stop(); },
@@ -265,6 +304,7 @@ export function initSectionScenes() {
       window.removeEventListener('scroll', wake);
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', visibility);
+      window.removeEventListener('sce:scenefocus', sceneFocus);
       motion.removeEventListener('change', motionChange);
       renderer.domElement.removeEventListener('webglcontextlost', lost);
       renderer.domElement.removeEventListener('webglcontextrestored', restored);
