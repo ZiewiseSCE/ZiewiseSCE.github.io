@@ -1,0 +1,10 @@
+{
+  "license": "CC0 1.0, https://polyhaven.com/license",
+  "checkedAt": "2026-09-13",
+  "assets": [
+    {"file": "drakensberg_solitary_mountain_4k.hdr", "source": "https://polyhaven.com/a/drakensberg_solitary_mountain", "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/4k/drakensberg_solitary_mountain_4k.hdr"},
+    {"file": "aerial_rocks_02_diff_2k.jpg", "source": "https://polyhaven.com/a/aerial_rocks_02", "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/aerial_rocks_02/aerial_rocks_02_diff_2k.jpg"},
+    {"file": "aerial_rocks_02_rough_2k.jpg", "source": "https://polyhaven.com/a/aerial_rocks_02", "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/aerial_rocks_02/aerial_rocks_02_rough_2k.jpg"},
+    {"file": "aerial_rocks_02_nor_gl_2k.jpg", "source": "https://polyhaven.com/a/aerial_rocks_02", "url": "https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/aerial_rocks_02/aerial_rocks_02_nor_gl_2k.jpg"}
+  ]
+}

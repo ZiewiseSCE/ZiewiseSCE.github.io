@@ -1,0 +1,9 @@
+frames/
+*.blend*
+*.hdr
+*.jpg
+*.png
+*.log
+progress-*.json
+__pycache__/
+qa-output/

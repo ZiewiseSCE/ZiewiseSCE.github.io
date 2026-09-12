@@ -23,9 +23,11 @@
 <script src="resources/js/service-details.js?v=20260912-4" defer></script>
 <link rel="stylesheet" href="resources/css/service-stories.css?v=20260912-5a">
 <script src="resources/js/service-stories.js?v=20260912-5" defer></script>
-<link rel="stylesheet" href="resources/css/green-vision.css?v=20260912-6">
-<script src="resources/js/green-vision.js?v=20260912-6" defer></script>
-<script src="resources/js/renewal.js?v=20260912-5" defer>
+<link rel="stylesheet" href="resources/css/green-vision.css?v=20260913-1">
+<script src="resources/js/impact-model.js?v=20260913-1" defer></script>
+<script src="resources/js/green-vision.js?v=20260913-1" defer></script>
+<script src="resources/js/impact-vision.js?v=20260913-1" defer></script>
+<script src="resources/js/renewal.js?v=20260913-1" defer>
 </script>
 </head>
 <body>
@@ -88,9 +90,8 @@
 <main id="main">
 <section id="hero" class="hero green-vision">
 <div class="hero-landscape" aria-hidden="true">
-<picture class="vision-poster"><source media="(prefers-reduced-motion: reduce)" srcset="resources/media/green-vision/green-forest.webp"><img src="resources/media/green-vision/green-start.webp" alt="" width="1920" height="1080" decoding="async"></picture>
-<video id="vision-intro" class="vision-film" muted playsinline preload="none" disablepictureinpicture tabindex="-1"></video>
-<video id="vision-idle" class="vision-film" muted playsinline loop preload="none" disablepictureinpicture tabindex="-1"></video>
+<picture class="vision-poster"><source media="(prefers-reduced-motion: reduce)" srcset="resources/media/green-vision/energy-complete.webp"><img src="resources/media/green-vision/energy-start.webp" alt="" width="1920" height="1080" decoding="async" fetchpriority="high"></picture>
+<video id="vision-film" class="vision-film" autoplay muted playsinline loop preload="none" disablepictureinpicture tabindex="-1"></video>
 </div>
 <div class="hero-grid container">
 <div class="hero-copy">
@@ -112,56 +113,19 @@
 <span aria-hidden="true">↓</span>
 </a>
 </div>
-<div class="hero-footnote">
-<span class="little-line">
-</span>
-<span data-i18n="heroNote">에너지의 시작부터, 그다음까지.</span>
+<div id="impact-vision" class="impact-vision">
+<p class="impact-eyebrow" data-i18n="impactEstimate">공개된 5개 연도 매출 약 55.6억 원 · 추정 환산</p>
+<div class="impact-values" role="img" aria-label="공개 매출 기준 추정 시나리오: 태양광 30.9MW, 연간 저감 잠재량 15,463tCO₂e, 소나무 약 234.3만 그루 상당">
+<div><strong><span data-impact="capacity">30.9</span><small>MW</small></strong><span data-i18n="impactCapacity">태양광 규모 환산</span></div>
+<div><strong><span data-impact="carbon">15,463</span></strong><span data-i18n="impactCarbon">연간 저감 잠재량</span><small data-i18n="impactYearUnit">tCO₂e / 년</small></div>
+<div><strong><span data-impact="trees">234.3만</span></strong><span data-i18n="impactTrees">소나무 흡수량 환산</span><small data-i18n="impactTreeUnit">그루 상당</small></div>
 </div>
-</div>
-<div class="hero-visual">
-<div class="orbit orbit-one" aria-hidden="true">
-</div>
-<div class="orbit orbit-two" aria-hidden="true">
-</div>
-<div class="scene-caption">
-<span class="status-dot">
-</span> ENERGY IN HARMONY</div>
-<div id="solar-scene" class="solar-scene" role="img" aria-label="태양광 패널과 나무가 어우러진 친환경 발전소 3D 모형" data-i18n-aria="sceneAlt">
-<img class="scene-fallback" src="resources/images/renewal/scene-poster.webp" alt="" width="1000" height="900">
-</div>
-<div class="scene-tag tag-solar">
-<span class="tag-icon" aria-hidden="true">↗</span>
-<div>
-<small>SOLAR ENERGY</small>
-<span data-i18n="sceneSolar">공간을 에너지로</span>
-</div>
-</div>
-<div class="scene-bottom">
-<span data-i18n="sceneNote">지속 가능한 에너지의 작은 풍경</span>
-<button id="scene-toggle" type="button" aria-pressed="false" disabled>
-<span class="pause-label">
-<span aria-hidden="true">Ⅱ</span> <span data-i18n="pause">일시 정지</span>
-</span>
-<span class="play-label">
-<span aria-hidden="true">▷</span> <span data-i18n="play">재생</span>
-</span>
-</button>
+<div class="impact-bottom"><p data-i18n="impactNote">30년생 소나무의 1년 흡수량과 비교한 수치입니다.</p><button type="button" data-impact-open aria-haspopup="dialog" aria-controls="impact-method" data-i18n="impactMethod">환산 기준 보기</button></div>
 </div>
 </div>
 </div>
-<div class="vision-band container">
-<div class="vision-story">
-<div class="vision-brand"><span>SCEnergy <b>GREEN VISION</b></span><p data-i18n="visionLine">숲이 자라고, 에너지가 이어지는 미래.</p></div>
-<div class="vision-stages" role="group" aria-label="친환경 비전 영상 장면" data-i18n-aria="visionStages">
-<button type="button" data-vision-stage="0" aria-pressed="true" aria-controls="vision-intro"><span>01</span><span data-i18n="visionForest">자라나는 숲</span></button>
-<button type="button" data-vision-stage="1" aria-pressed="false" aria-controls="vision-intro"><span>02</span><span data-i18n="visionStorage">ESS 에너지 저장</span></button>
-<button type="button" data-vision-stage="2" aria-pressed="false" aria-controls="vision-intro"><span>03</span><span data-i18n="visionMobility">전기차 충전</span></button>
-</div>
-<div class="vision-controls"><button id="vision-toggle" type="button" aria-pressed="false" aria-controls="vision-intro vision-idle"><span class="vision-control-icon" aria-hidden="true">Ⅱ</span><span data-i18n="visionPause">배경 정지</span></button><button id="vision-replay" type="button" aria-controls="vision-intro" aria-label="배경 영상 처음부터 재생" data-i18n-aria="visionReplay"><span aria-hidden="true">↺</span></button></div>
-</div>
-<div class="vision-progress" aria-hidden="true"><span></span></div>
-<p class="vision-note" data-i18n="visionConcept">SCEnergy의 친환경 비전을 표현한 콘셉트 영상</p>
-</div>
+<p class="vision-caption"><span>SCEnergy · GREEN VISION</span><span data-i18n="visionConcept">자연과 에너지가 함께 자라는 미래 · 콘셉트 필름</span></p>
+<p class="sr-only" data-i18n="visionDescription">건물의 기초와 철골, 외장과 태양광 패널이 차례로 설치되고 ESS와 전기차 충전소, 숲으로 이어지는 3D 건축 애니메이션.</p>
 <div class="hero-index container">
 <a href="#modules">
 <span>01</span>
@@ -452,5 +416,15 @@
 <span>SUSTAINABLE ENERGY. SHARED FUTURE.</span>
 </div>
 </footer>
+
+<dialog id="impact-method" class="impact-method" aria-labelledby="impact-method-title">
+<div class="impact-modal-top"><span>SCENERGY · IMPACT MODEL</span><button type="button" data-impact-close data-i18n="impactClose">닫기</button></div>
+<h2 id="impact-method-title" data-i18n="impactTitle">숫자에 담긴 기준</h2>
+<p class="impact-modal-intro" data-i18n="impactIntro">공개 매출을 회사가 지정한 단가로 태양광 규모에 환산한 시나리오입니다.</p>
+<div class="impact-inputs"><div><span data-i18n="impactRevenue">공개 매출 합계</span><strong data-impact-total>5,558,290,000 KRW</strong></div><div><span data-i18n="impactGeneration">가정한 연간 발전량</span><strong data-impact-generation>37,055 MWh / 년</strong></div></div>
+<p data-i18n="impactCoverage"></p><p data-i18n="impactFormula"></p><p data-i18n="impactCarbonBasis"></p><p data-i18n="impactTreeBasis"></p>
+<div class="impact-sources"><h3 data-i18n="impactSources">자료 출처</h3><a data-impact-source="revenue" target="_blank" rel="noopener noreferrer" data-i18n="impactRevenueSource">기업 재무정보 · 사람인 / NICE</a><a data-impact-source="grid" target="_blank" rel="noopener noreferrer" data-i18n="impactGridSource">국가 전력배출계수 · 기후에너지환경부</a><a data-impact-source="pine" target="_blank" rel="noopener noreferrer" data-i18n="impactPineSource">소나무 연간 흡수량 · 한국 기후변화 평가보고서 2014, 표 4.4</a></div>
+<p class="impact-asof" data-i18n="impactAsOf">자료 확인: 2026.09.13</p>
+</dialog>
 </body>
 </html>
