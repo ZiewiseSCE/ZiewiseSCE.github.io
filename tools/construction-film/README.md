@@ -29,7 +29,7 @@ The final 47 frames dissolve back to the first landscape frame. This makes the f
 
 The scene contains modeled structural flanges/webs/stiffeners, fasteners, standing roof seams, 72-cell PV modules, glazed mullions, ESS vents/fans, charging cables and individual leaf geometry. The crane moves during early construction and is removed before the PV stage.
 
-## Revenue and environmental scenario
+## Environmental comparison scenario
 
 The website's inputs are in `resources/js/impact-model.js`; translations and time-linked counters are in `impact-vision.js`. See `IMPACT-BASIS.md` for evidence, units and limitations. The forest is a symbolic visual comparison, not one modeled tree per equivalent tree. Counters rise once with the first film sequence and retain the final scenario values on later loops. They are not a live generation feed.
 

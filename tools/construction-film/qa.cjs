@@ -24,12 +24,9 @@ const stats=page=>page.locator('.impact-values').innerText();
  assert.equal(film.width,1920);assert.ok(Math.abs(film.duration-38)<.1);
  assert.equal(await page.locator('.vision-band,#solar-scene,#scene-toggle').count(),0);
  const model=await page.evaluate(()=>window.SCE_IMPACT);
- assert.equal(model.assumptions.krwPerKw,180000);
- assert.equal(model.revenueKrw,5558290000);
  assert.ok(Math.abs(model.capacityKw/1000-30.8793888889)<.000001);
  assert.equal(Math.round(model.annualTco2e),15463);
  assert.equal(Math.round(model.equivalentPines),2342903);
- assert.deepEqual(model.revenue.map(v=>v.year),[2019,2020,2021,2024,2025]);
  await pauseSeek(page,16);
  const partialCapacity=Number(await page.locator('[data-impact="capacity"]').innerText());
  assert.ok(partialCapacity>0&&partialCapacity<30.9);
@@ -41,12 +38,13 @@ const stats=page=>page.locator('.impact-values').innerText();
  assert.equal(await page.locator('[data-impact="trees"]').innerText(),'234.3만');
  await page.screenshot({path:path.join(out,'desktop.png')});
  await page.locator('[data-impact-open]').click();
- assert.ok((await page.locator('#impact-method').innerText()).includes('1MW당 1.8억 원'));
+ assert.ok((await page.locator('#impact-method').innerText()).includes('30.9MW'));
+ assert.doesNotMatch(await page.locator('#impact-method').innerText(), /매출|집계 연도/);
  await page.screenshot({path:path.join(out,'calculation-basis.png')});
  await page.keyboard.press('Escape');assert.equal(await page.locator('#impact-method').isVisible(),false);
  for(const lang of ['en','ja','ko']){
   await page.locator('#language').selectOption(lang);
-  assert.ok(!(await page.locator('[data-i18n="impactFormula"]').innerText()).includes('150만'));
+  assert.doesNotMatch(await page.locator('#impact-method').innerText(), /매출|revenue|売上/i);
   results.push({lang,stats:await stats(page)});
  }
  await page.locator('#language').blur();

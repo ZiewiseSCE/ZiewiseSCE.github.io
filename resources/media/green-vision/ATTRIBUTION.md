@@ -11,7 +11,7 @@
 - `energy-start.webp` and `energy-complete.webp` are renders from the same scene.
 - Reproduction scripts and exact asset URLs: `tools/construction-film/`.
 
-This is a concept visualization, not footage of an actual SCEnergy installation. The forest symbolizes a disclosed revenue-based scenario; it is not a tree-planting record. Assumptions are in `tools/construction-film/IMPACT-BASIS.md` and the homepage calculation dialog.
+This is a concept visualization, not footage of an actual SCEnergy installation. The forest symbolizes an environmental comparison scenario; it is not a tree-planting record. Assumptions are in `tools/construction-film/IMPACT-BASIS.md` and the homepage calculation dialog.
 
 ## Previous v6 film (retained for cached pages)
 
