@@ -41,14 +41,52 @@
   const narrow = matchMedia('(max-width: 760px)');
   const smooth = (a, b, t) => { const x = Math.max(0, Math.min(1, (t - a) / (b - a))); return x * x * (3 - 2 * x); };
   const elements = Object.fromEntries(['phase', 'title', 'flow', 'status', 'time', 'percent', 'battery'].map(key => [key, card.querySelector(`[data-energy-${key}]`)]));
+  const poster = hero.querySelector('.vision-poster');
+  const posterImage = poster.querySelector('img');
+  const frameCallbacks = typeof film.requestVideoFrameCallback === 'function';
+  const setText = (element, value) => { if (element.textContent !== value) element.textContent = value; };
+  let frameRequest = null;
+  let lastRatio = '', lastPosition = '', lastBattery = '', lastChargeLabel = '';
   let previous = '';
+  const isStill = () => reduced.matches || navigator.connection?.saveData || ['fallback', 'autoplay-blocked', 'still'].includes(hero.dataset.visionState);
+  function framing(t = film.currentTime) {
+    const cycle = isStill() ? 0 : smooth(36, 39, t) * (1 - smooth(60, 62, t));
+    const ratio = (2.15 - .17 * cycle).toFixed(5);
+    const origin = narrow.matches ? 68 : 50;
+    const position = `${(origin + (100 - origin) * cycle).toFixed(3)}%`;
+    // Scope framing to the media layers. Updating the entire hero made all its
+    // descendants recalculate inherited styles while the film was decoding.
+    if (ratio !== lastRatio) {
+      lastRatio = ratio;
+      if (!stacked.matches) for (const element of [film, poster]) element.style.setProperty('--vision-film-ratio', ratio);
+    }
+    if (position !== lastPosition) {
+      lastPosition = position;
+      if (stacked.matches) for (const element of [film, posterImage]) element.style.setProperty('--vision-film-x', position);
+    }
+  }
+  function stopFrames() {
+    if (frameRequest === null) return;
+    if (frameCallbacks) film.cancelVideoFrameCallback(frameRequest);
+    else cancelAnimationFrame(frameRequest);
+    frameRequest = null;
+  }
+  function startFrames() {
+    if (frameRequest !== null || film.paused || document.hidden || isStill()) return;
+    const tick = (now, metadata) => {
+      frameRequest = null;
+      if (film.paused || document.hidden || isStill()) return;
+      framing(metadata?.mediaTime ?? film.currentTime);
+      startFrames();
+    };
+    frameRequest = frameCallbacks ? film.requestVideoFrameCallback(tick) : requestAnimationFrame(tick);
+  }
   function update() {
     const t = film.currentTime;
-    const still = reduced.matches || navigator.connection?.saveData || ['fallback', 'autoplay-blocked', 'still'].includes(hero.dataset.visionState);
+    const still = isStill();
     const summary = still || t < 38.5 || t >= 60.7;
     const shown = still || stacked.matches || !summary;
-    card.hidden = !shown;
-    hero.classList.toggle('has-energy-cycle', shown);
+    if (card.hidden === shown) card.hidden = !shown;
     const phase = summary ? 'still' : t < 44 ? 'morning' : t < 52 ? 'day' : t < 56 ? 'evening' : 'night';
     const lang = document.documentElement.lang in labels ? document.documentElement.lang : 'ko';
     const text = labels[lang];
@@ -60,24 +98,31 @@
     }
     const charge = t < 52 ? 22 + 70 * smooth(39, 52, t) : t < 56 ? 92 - 17 * smooth(52, 56, t) : 75 - 47 * smooth(56, 60.5, t);
     const soc = Math.round(charge);
-    elements.percent.textContent = summary ? 'ESS' : `${soc}%`;
-    elements.battery.style.setProperty('--charge', summary ? '.7' : String(charge / 100));
-    elements.battery.setAttribute('aria-label', `${text.energyStored}: ${summary ? 'ESS' : soc + '%'}`);
+    setText(elements.percent, summary ? 'ESS' : `${soc}%`);
+    const battery = summary ? '.7' : (charge / 100).toFixed(3);
+    if (battery !== lastBattery) { lastBattery = battery; elements.battery.style.setProperty('--charge', battery); }
+    const chargeLabel = `${text.energyStored}: ${summary ? 'ESS' : soc + '%'}`;
+    if (chargeLabel !== lastChargeLabel) { lastChargeLabel = chargeLabel; elements.battery.setAttribute('aria-label', chargeLabel); }
     const hour = t < 44 ? 7 + 3 * smooth(39, 44, t) : t < 52 ? 10 + 6 * smooth(44, 52, t) : t < 56 ? 16 + 3 * smooth(52, 56, t) : 19 + 4 * smooth(56, 60.5, t);
-    elements.time.textContent = summary ? '24h' : `${String(Math.floor(hour)).padStart(2, '0')}:${String(Math.floor((hour % 1) * 4) * 15).padStart(2, '0')}`;
-    // A small continuous zoom adjustment retains the sun inside wide PC crops.
-    const cycle = still ? 0 : smooth(36, 39, t) * (1 - smooth(60, 62, t));
-    hero.style.setProperty('--vision-film-ratio', (2.15 - .17 * cycle).toFixed(4));
-    const origin = narrow.matches ? 68 : 50;
-    hero.style.setProperty('--vision-film-x', `${(origin + (100 - origin) * cycle).toFixed(2)}%`);
+    setText(elements.time, summary ? '24h' : `${String(Math.floor(hour)).padStart(2, '0')}:${String(Math.floor((hour % 1) * 4) * 15).padStart(2, '0')}`);
+    // timeupdate is for text, not motion: it normally arrives only ~4 times per
+    // second. Moving framing follows each displayed video frame instead.
+    if (film.paused || still) framing();
+    if (still) stopFrames(); else startFrames();
   }
   film.addEventListener('timeupdate', update);
-  film.addEventListener('seeked', update);
+  film.addEventListener('seeked', () => { framing(); update(); });
+  film.addEventListener('playing', startFrames);
+  film.addEventListener('pause', stopFrames);
+  film.addEventListener('emptied', stopFrames);
   film.addEventListener('error', update);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stopFrames(); else startFrames(); });
   document.addEventListener('sce:languagechange', () => { previous = ''; update(); });
   new MutationObserver(update).observe(hero, {attributes: true, attributeFilter: ['data-vision-state']});
   reduced.addEventListener('change', update);
-  stacked.addEventListener('change', update);
-  narrow.addEventListener('change', update);
+  function resize() { lastRatio = ''; lastPosition = ''; framing(); update(); }
+  stacked.addEventListener('change', resize);
+  narrow.addEventListener('change', resize);
+  framing();
   update();
 })();

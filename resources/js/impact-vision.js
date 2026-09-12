@@ -41,6 +41,7 @@
   for (const [lang, text] of Object.entries(labels)) Object.assign(dictionary[lang], text);
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   let finished = false;
+  let rendered = '';
   const formatter = (value, compact = false, decimals = 0) => new Intl.NumberFormat(document.documentElement.lang || 'ko', { notation: compact ? 'compact' : 'standard', maximumFractionDigits: decimals, minimumFractionDigits: decimals }).format(value);
   const smooth = (a, b, t) => { const x = Math.max(0, Math.min(1, (t - a) / (b - a))); return x * x * (3 - 2 * x); };
   function numbers() {
@@ -49,6 +50,9 @@
     // The counters accumulate once, then retain the completed scenario while the
     // decorative construction film repeats. They are not a live production feed.
     if (t >= 35.5 || still) finished = true;
+    const renderKey = finished ? (document.documentElement.lang || 'ko') : '';
+    if (renderKey && rendered === renderKey) return;
+    rendered = renderKey;
     const solar = finished ? 1 : smooth(13.6, 19, t);
     const forest = finished ? 1 : smooth(26, 35.5, t);
     host.querySelector('[data-impact="capacity"]').textContent = formatter(data.capacityKw / 1000 * solar, false, 1);
