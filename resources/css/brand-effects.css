@@ -22,14 +22,15 @@
   animation: brandHue 10s ease-in-out infinite;
 }
 
-/* Mask the moving light to the unchanged artwork, so transparent space never flashes. */
+/* Mask the moving light to the logo artwork, so transparent space never flashes. */
 .brand-shine {
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
-  -webkit-mask: url('../images/renewal/logo.webp') center / 100% 100% no-repeat;
-  mask: url('../images/renewal/logo.webp') center / 100% 100% no-repeat;
+  -webkit-mask: url('../images/renewal/logo-refined.svg') center / 100% 100% no-repeat;
+  mask: url('../images/renewal/logo-refined.svg') center / 100% 100% no-repeat;
+  mask-mode: alpha;
 }
 
 .brand-shine::before {
