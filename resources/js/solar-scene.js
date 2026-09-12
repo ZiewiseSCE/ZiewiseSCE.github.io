@@ -20,6 +20,7 @@ export function initSolarScene() {
   let userChangedMotion = false;
   let frame = 0;
   let previousTime = 0;
+  let previousSceneTime = 0;
   let elapsed = 0;
   let ready = false;
 
@@ -468,6 +469,95 @@ export function initSolarScene() {
     }
   }
 
+  // A compact survey aircraft follows the installation while the site stays grounded.
+  const drone = new THREE.Group();
+  drone.scale.setScalar(0.72);
+  campus.add(drone);
+  const droneShell = material(0xd6d8d4, { roughness: 0.35, metalness: 0.45 });
+  const droneCarbon = material(0x222d30, { roughness: 0.48, metalness: 0.18 });
+  const droneLens = new THREE.MeshPhysicalMaterial({ color: 0x142b37, roughness: 0.1, metalness: 0.35, clearcoat: 1 });
+  const body = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 12), droneShell);
+  body.scale.set(0.125, 0.063, 0.19);
+  body.castShadow = true;
+  drone.add(body);
+  box(0.16, 0.055, 0.24, droneCarbon, 0, -0.035, 0.015, drone);
+  box(0.085, 0.012, 0.12, droneShell, 0, 0.061, 0.023, drone);
+  for (let vent = 0; vent < 3; vent += 1) {
+    box(0.038, 0.005, 0.005, droneCarbon, 0, 0.069, 0.036 + vent * 0.013, drone);
+  }
+
+  function strut(start, end, radius, mat, parent) {
+    const direction = new THREE.Vector3().subVectors(end, start);
+    const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.82, radius, direction.length(), 8), mat);
+    mesh.position.copy(start).lerp(end, 0.5);
+    mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+    mesh.castShadow = true;
+    parent.add(mesh);
+    return mesh;
+  }
+
+  const propellers = [];
+  const propellerBlur = new THREE.MeshBasicMaterial({ color: 0x344044, transparent: true, opacity: 0.095, side: THREE.DoubleSide, depthWrite: false });
+  const propellerBlade = material(0x2c3539, { roughness: 0.5, transparent: true, opacity: 0.62, depthWrite: false });
+  const bladeShape = new THREE.Shape();
+  bladeShape.moveTo(-0.014, 0.003);
+  bladeShape.bezierCurveTo(-0.078, 0.021, -0.133, 0.015, -0.15, 0.004);
+  bladeShape.quadraticCurveTo(-0.085, -0.008, -0.014, -0.006);
+  bladeShape.lineTo(0.014, -0.003);
+  bladeShape.bezierCurveTo(0.078, -0.021, 0.133, -0.015, 0.15, -0.004);
+  bladeShape.quadraticCurveTo(0.085, 0.008, 0.014, 0.006);
+  bladeShape.closePath();
+  const bladeGeometry = new THREE.ShapeGeometry(bladeShape, 6);
+  bladeGeometry.rotateX(-Math.PI / 2);
+  for (let index = 0; index < 4; index += 1) {
+    const x = (index % 2 ? 1 : -1) * 0.265;
+    const z = (index < 2 ? -1 : 1) * 0.235;
+    strut(new THREE.Vector3(x * 0.22, -0.005, z * 0.35), new THREE.Vector3(x, 0.004, z), 0.019, droneCarbon, drone);
+    const motor = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.03, 0.057, 12), droneShell);
+    motor.position.set(x, 0.015, z);
+    motor.castShadow = true;
+    drone.add(motor);
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.018, 0.025, 10), droneCarbon);
+    hub.position.set(x, 0.054, z);
+    drone.add(hub);
+    const propeller = new THREE.Mesh(bladeGeometry, propellerBlade);
+    propeller.position.set(x, 0.058, z);
+    drone.add(propeller);
+    propellers.push(propeller);
+    const blur = new THREE.Mesh(new THREE.CircleGeometry(0.15, 28), propellerBlur);
+    blur.rotation.x = -Math.PI / 2;
+    blur.position.set(x, 0.059, z);
+    drone.add(blur);
+    strut(new THREE.Vector3(x * 0.37, -0.047, z * 0.49), new THREE.Vector3(x * 0.46, -0.145, z * 0.58), 0.011, droneCarbon, drone);
+    box(0.034, 0.015, 0.064, droneCarbon, x * 0.46, -0.146, z * 0.58, drone);
+  }
+  const gimbal = new THREE.Group();
+  gimbal.position.set(0, -0.096, -0.14);
+  gimbal.rotation.x = -0.28;
+  drone.add(gimbal);
+  const mount = new THREE.Mesh(new THREE.SphereGeometry(0.035, 12, 8), droneCarbon);
+  gimbal.add(mount);
+  box(0.077, 0.064, 0.057, droneShell, 0, -0.029, -0.042, gimbal);
+  const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.023, 0.023, 0.018, 16), droneLens);
+  lens.rotation.x = Math.PI / 2;
+  lens.position.set(0, -0.029, -0.076);
+  gimbal.add(lens);
+  const statusLamp = new THREE.Mesh(new THREE.SphereGeometry(0.009, 8, 6), new THREE.MeshBasicMaterial({ color: 0xd9b269 }));
+  statusLamp.position.set(0, 0.013, 0.193);
+  drone.add(statusLamp);
+
+  const surveyPath = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-2.1, 3.35, 1.62),
+    new THREE.Vector3(0.3, 3.28, 1.68),
+    new THREE.Vector3(2.25, 3.42, 0.95),
+    new THREE.Vector3(2.35, 3.55, -0.92),
+    new THREE.Vector3(0.35, 3.34, -1.73),
+    new THREE.Vector3(-1.95, 3.37, -1.23),
+    new THREE.Vector3(-2.55, 3.48, 0.1),
+  ], true, 'centripetal');
+  const flightPosition = new THREE.Vector3();
+  const flightTangent = new THREE.Vector3();
+
   const shadow = new THREE.Mesh(new THREE.PlaneGeometry(35, 35), new THREE.ShadowMaterial({ opacity: 0.2 }));
   shadow.rotation.x = -Math.PI / 2;
   shadow.position.y = -0.215;
@@ -476,6 +566,37 @@ export function initSolarScene() {
 
   const pointer = new THREE.Vector2();
   const easedPointer = new THREE.Vector2();
+  const lookTarget = new THREE.Vector3(0, 0.85, 0);
+  const daylightWhite = new THREE.Color(0xfff3df);
+  const daylightWarm = new THREE.Color(0xffe7c3);
+
+  function updateCinematicFrame(time) {
+    const orbitPhase = time * Math.PI * 2 / 26;
+    const orbitAngle = Math.atan2(12, 15) + Math.sin(orbitPhase) * 0.165 + easedPointer.x * 0.09;
+    const radius = 19.2;
+    camera.position.set(Math.sin(orbitAngle) * radius, 11.5 + Math.sin(orbitPhase + 0.55) * 0.58 - easedPointer.y * 0.32, Math.cos(orbitAngle) * radius);
+    lookTarget.y = 0.89 + Math.sin(orbitPhase - 0.4) * 0.045;
+    camera.lookAt(lookTarget);
+    camera.zoom = 1 + Math.sin(orbitPhase - 0.55) * 0.022;
+    camera.updateProjectionMatrix();
+
+    const daylightPhase = time * Math.PI * 2 / 38;
+    sunLight.position.set(-5 + Math.sin(daylightPhase) * 2.1, 12 + Math.sin(daylightPhase * 0.7) * 0.5, 7 + (Math.cos(daylightPhase) - 1) * 1.25);
+    sunLight.color.copy(daylightWhite).lerp(daylightWarm, (Math.sin(daylightPhase - 0.55) + 1) * 0.22);
+    sunLight.intensity = 3.15 + Math.sin(daylightPhase) * 0.14;
+    scene.environmentRotation.y = Math.sin(daylightPhase) * 0.115;
+    scene.environmentIntensity = 0.28 + Math.sin(daylightPhase) * 0.025;
+
+    const progress = (time / 32) % 1;
+    surveyPath.getPointAt(progress, flightPosition);
+    surveyPath.getTangentAt(progress, flightTangent);
+    drone.position.copy(flightPosition);
+    drone.rotation.set(-0.025 + Math.sin(progress * Math.PI * 4) * 0.018, Math.atan2(-flightTangent.x, -flightTangent.z), Math.sin(progress * Math.PI * 2) * 0.04);
+    propellers.forEach((propeller, index) => {
+      propeller.rotation.y = time * 210 * (index % 2 ? 1 : -1) + index * 1.57;
+    });
+    gimbal.rotation.x = -0.38 + Math.sin(progress * Math.PI * 2) * 0.09;
+  }
 
   function updateControl() {
     if (!toggle) return;
@@ -519,12 +640,11 @@ export function initSolarScene() {
     if (!previousTime) previousTime = time;
     const delta = time - previousTime;
     if (delta >= interval) {
-      elapsed += Math.min(delta, 80) / 1000;
+      elapsed += previousSceneTime ? Math.min(time - previousSceneTime, 100) / 1000 : interval / 1000;
+      previousSceneTime = time;
       previousTime = time - (delta % interval);
       easedPointer.lerp(pointer, 0.055);
-      campus.rotation.y = -0.11 + Math.sin(elapsed * 0.18) * 0.052 + easedPointer.x * 0.052;
-      campus.rotation.x = easedPointer.y * 0.018;
-      sunLight.position.x = -5 + Math.sin(elapsed * 0.1) * 0.6;
+      updateCinematicFrame(elapsed);
       render();
     }
     if (canAnimate()) frame = requestAnimationFrame(tick);
@@ -533,6 +653,7 @@ export function initSolarScene() {
   function start() {
     if (!frame && canAnimate()) {
       previousTime = 0;
+      previousSceneTime = 0;
       frame = requestAnimationFrame(tick);
     }
   }
@@ -541,6 +662,7 @@ export function initSolarScene() {
     if (frame) cancelAnimationFrame(frame);
     frame = 0;
     previousTime = 0;
+    previousSceneTime = 0;
   }
 
   function resize() {
@@ -653,6 +775,7 @@ export function initSolarScene() {
   };
 
   updateControl();
+  updateCinematicFrame(0);
   resize();
   start();
   mountedScenes.set(host, api);

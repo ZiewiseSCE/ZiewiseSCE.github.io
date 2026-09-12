@@ -1,0 +1,100 @@
+/* Restore the original logo's warm halo, gentle tonal shimmer, and 4.5s light sweep.
+   Image dimensions stay with renewal.css, including its mobile/tablet breakpoints. */
+.brand,
+.footer-logo {
+  filter: drop-shadow(0 0 18px rgba(255, 138, 59, .35));
+  transition: transform .3s ease, filter .3s ease;
+}
+
+.brand-img-wrap {
+  position: relative;
+  display: inline-block;
+  flex: none;
+  max-width: 100%;
+  line-height: 0;
+  isolation: isolate;
+  animation: brandGlow 7s ease-in-out infinite;
+}
+
+.brand-img {
+  display: block;
+  filter: brightness(1.08) contrast(1.05) drop-shadow(0 2px 4px rgba(0, 0, 0, .4));
+  animation: brandHue 10s ease-in-out infinite;
+}
+
+/* Mask the moving light to the unchanged artwork, so transparent space never flashes. */
+.brand-shine {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask: url('../images/renewal/logo.webp') center / 100% 100% no-repeat;
+  mask: url('../images/renewal/logo.webp') center / 100% 100% no-repeat;
+}
+
+.brand-shine::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(110deg,
+    transparent 34%,
+    rgba(255, 220, 143, .12) 41%,
+    rgba(255, 250, 231, .32) 46%,
+    rgba(255, 255, 255, .8) 50%,
+    rgba(255, 239, 188, .32) 54%,
+    rgba(255, 220, 143, .12) 59%,
+    transparent 66%);
+  transform: translateX(-115%);
+  animation: brandShine 4.5s ease-in-out infinite;
+}
+
+@keyframes brandShine {
+  0% { transform: translateX(-115%); }
+  50%, 100% { transform: translateX(115%); }
+}
+
+@keyframes brandHue {
+  0%, 100% {
+    filter: brightness(1.08) contrast(1.05) drop-shadow(0 2px 4px rgba(0, 0, 0, .4)) hue-rotate(0deg);
+  }
+  50% {
+    filter: brightness(1.18) contrast(1.1) drop-shadow(0 2px 6px rgba(255, 138, 59, .5)) hue-rotate(-5deg);
+  }
+}
+
+@keyframes brandGlow {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(255, 178, 83, .08)); }
+  50% { filter: drop-shadow(0 0 12px rgba(255, 178, 83, .3)); }
+}
+
+@media (hover: hover) {
+  .brand:hover,
+  .footer-logo:hover {
+    transform: scale(1.04);
+    filter: drop-shadow(0 0 26px rgba(255, 190, 58, .55));
+  }
+}
+
+.brand:focus-visible,
+.footer-logo:focus-visible {
+  filter: drop-shadow(0 0 26px rgba(255, 190, 58, .55));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand,
+  .footer-logo {
+    transition: none;
+  }
+  .brand-img-wrap,
+  .brand-img,
+  .brand-shine::before {
+    animation: none;
+  }
+  .brand-shine {
+    display: none;
+  }
+  .brand:hover,
+  .footer-logo:hover {
+    transform: none;
+  }
+}

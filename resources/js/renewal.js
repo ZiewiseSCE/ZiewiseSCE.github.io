@@ -136,10 +136,15 @@
 
   // Defer the optional renderer until the essential page is visible. Navigation,
   // translations and contact actions do not depend on WebGL or module loading.
-  const startScene = () => import('./solar-scene.js').then(module => module.initSolarScene()).catch(() => {
+  const startScene = () => import('./solar-scene.js?v=20260912-2').then(module => module.initSolarScene()).catch(() => {
     document.getElementById('solar-scene').classList.remove('scene-ready');
     document.getElementById('scene-toggle').hidden = true;
   });
   if ('requestIdleCallback' in window) requestIdleCallback(startScene, { timeout: 1200 });
   else setTimeout(startScene, 100);
+  const startSections = () => import('./section-scenes.js?v=20260912-2').then(module => module.initSectionScenes()).catch(() => {
+    document.querySelectorAll('.scene-motion').forEach(button => { button.hidden = true; });
+  });
+  if ('requestIdleCallback' in window) requestIdleCallback(startSections, { timeout: 1600 });
+  else setTimeout(startSections, 250);
 })();
