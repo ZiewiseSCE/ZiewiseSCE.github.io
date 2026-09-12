@@ -193,12 +193,12 @@ for ob in bpy.data.objects:
                 else:p.handle_left_type=p.handle_right_type='AUTO_CLAMPED'
 S.frame_set(1)
 bpy.ops.wm.save_as_mainfile(filepath=str(ROOT/'energy-day-cycle.blend'))
-dest=ROOT/'day-frames';dest.mkdir(exist_ok=True)
-frames=[1,fr(5),fr(11),fr(18),fr(23)] if mode=='preview' else range(1,625,2)
+dest=ROOT/'day-native24';dest.mkdir(exist_ok=True)
+frames=[1,fr(5),fr(11),fr(18),fr(23)] if mode=='preview' else range(1,625)
 started=time.monotonic()
 for f in frames:
-    file=(ROOT/f'day-preview-{f:04}.png') if mode=='preview' else (dest/f'{(f+1)//2:04}.png')
+    file=(ROOT/f'day-preview-{f:04}.png') if mode=='preview' else (dest/f'{f:04}.png')
     if mode!='preview' and file.exists():continue
     S.frame_set(f);S.render.filepath=str(file);bpy.ops.render.render(write_still=True)
-    (ROOT/'day-progress.json').write_text(json.dumps({'frame':f,'last':623,'elapsed':round(time.monotonic()-started,1)}))
+    (ROOT/'day-progress.json').write_text(json.dumps({'frame':f,'last':624,'elapsed':round(time.monotonic()-started,1)}))
 print('DAY_CYCLE_READY',mode,round(time.monotonic()-started,1),flush=True)

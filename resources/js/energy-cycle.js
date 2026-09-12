@@ -38,49 +38,12 @@
   }
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const stacked = matchMedia('(max-width: 1100px)');
-  const narrow = matchMedia('(max-width: 760px)');
   const smooth = (a, b, t) => { const x = Math.max(0, Math.min(1, (t - a) / (b - a))); return x * x * (3 - 2 * x); };
   const elements = Object.fromEntries(['phase', 'title', 'flow', 'status', 'time', 'percent', 'battery'].map(key => [key, card.querySelector(`[data-energy-${key}]`)]));
-  const poster = hero.querySelector('.vision-poster');
-  const posterImage = poster.querySelector('img');
-  const frameCallbacks = typeof film.requestVideoFrameCallback === 'function';
   const setText = (element, value) => { if (element.textContent !== value) element.textContent = value; };
-  let frameRequest = null;
-  let lastRatio = '', lastPosition = '', lastBattery = '', lastChargeLabel = '';
+  let lastBattery = '', lastChargeLabel = '';
   let previous = '';
   const isStill = () => reduced.matches || navigator.connection?.saveData || ['fallback', 'autoplay-blocked', 'still'].includes(hero.dataset.visionState);
-  function framing(t = film.currentTime) {
-    const cycle = isStill() ? 0 : smooth(36, 39, t) * (1 - smooth(60, 62, t));
-    const ratio = (2.15 - .17 * cycle).toFixed(5);
-    const origin = narrow.matches ? 68 : 50;
-    const position = `${(origin + (100 - origin) * cycle).toFixed(3)}%`;
-    // Scope framing to the media layers. Updating the entire hero made all its
-    // descendants recalculate inherited styles while the film was decoding.
-    if (ratio !== lastRatio) {
-      lastRatio = ratio;
-      if (!stacked.matches) for (const element of [film, poster]) element.style.setProperty('--vision-film-ratio', ratio);
-    }
-    if (position !== lastPosition) {
-      lastPosition = position;
-      if (stacked.matches) for (const element of [film, posterImage]) element.style.setProperty('--vision-film-x', position);
-    }
-  }
-  function stopFrames() {
-    if (frameRequest === null) return;
-    if (frameCallbacks) film.cancelVideoFrameCallback(frameRequest);
-    else cancelAnimationFrame(frameRequest);
-    frameRequest = null;
-  }
-  function startFrames() {
-    if (frameRequest !== null || film.paused || document.hidden || isStill()) return;
-    const tick = (now, metadata) => {
-      frameRequest = null;
-      if (film.paused || document.hidden || isStill()) return;
-      framing(metadata?.mediaTime ?? film.currentTime);
-      startFrames();
-    };
-    frameRequest = frameCallbacks ? film.requestVideoFrameCallback(tick) : requestAnimationFrame(tick);
-  }
   function update() {
     const t = film.currentTime;
     const still = isStill();
@@ -105,24 +68,15 @@
     if (chargeLabel !== lastChargeLabel) { lastChargeLabel = chargeLabel; elements.battery.setAttribute('aria-label', chargeLabel); }
     const hour = t < 44 ? 7 + 3 * smooth(39, 44, t) : t < 52 ? 10 + 6 * smooth(44, 52, t) : t < 56 ? 16 + 3 * smooth(52, 56, t) : 19 + 4 * smooth(56, 60.5, t);
     setText(elements.time, summary ? '24h' : `${String(Math.floor(hour)).padStart(2, '0')}:${String(Math.floor((hour % 1) * 4) * 15).padStart(2, '0')}`);
-    // timeupdate is for text, not motion: it normally arrives only ~4 times per
-    // second. Moving framing follows each displayed video frame instead.
-    if (film.paused || still) framing();
-    if (still) stopFrames(); else startFrames();
+    // Playback never resizes or pans the media element. All camera motion lives
+    // in the native 24 fps film, so its entry and reset cannot trigger layout.
   }
   film.addEventListener('timeupdate', update);
-  film.addEventListener('seeked', () => { framing(); update(); });
-  film.addEventListener('playing', startFrames);
-  film.addEventListener('pause', stopFrames);
-  film.addEventListener('emptied', stopFrames);
+  film.addEventListener('seeked', update);
   film.addEventListener('error', update);
-  document.addEventListener('visibilitychange', () => { if (document.hidden) stopFrames(); else startFrames(); });
   document.addEventListener('sce:languagechange', () => { previous = ''; update(); });
   new MutationObserver(update).observe(hero, {attributes: true, attributeFilter: ['data-vision-state']});
   reduced.addEventListener('change', update);
-  function resize() { lastRatio = ''; lastPosition = ''; framing(); update(); }
-  stacked.addEventListener('change', resize);
-  narrow.addEventListener('change', resize);
-  framing();
+  stacked.addEventListener('change', update);
   update();
 })();

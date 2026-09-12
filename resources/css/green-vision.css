@@ -4,7 +4,7 @@
 .hero-landscape { position: absolute; inset: 0 0 var(--vision-index); z-index: -1; overflow: hidden; background: #e9ebdb; }
 .vision-poster, .vision-poster img, .vision-film { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .vision-poster { display: block; }
-.vision-poster, .vision-film { left: auto; right: 0; width: min(100%, calc(var(--vision-height) * var(--vision-film-ratio, 2.15))); mask-image: linear-gradient(90deg, transparent, #000 20%); }
+.vision-poster, .vision-film { left: auto; right: 0; width: min(100%, calc(var(--vision-height) * 1.98)); mask-image: linear-gradient(90deg, transparent, #000 20%); }
 .vision-poster img, .vision-film { object-position: center bottom; }
 .vision-film { opacity: 0; pointer-events: none; }
 .vision-film.is-visible { opacity: 1; }
@@ -50,7 +50,7 @@
 .green-vision .hero-index { position: relative; z-index: 3; min-height: var(--vision-index); background: #d7dfcfee; box-shadow: 0 0 0 100vmax #d7dfcfee; clip-path: inset(0 -100vmax); }
 html[lang=en] .green-vision h1 { font-size: clamp(40px, 3.7vw, 58px); }
 html[lang=ja] .green-vision h1 { font-size: clamp(36px, 3.3vw, 52px); }
-.energy-cycle { position: absolute; z-index: 2; top: calc(var(--vision-height) * .22); right: max(36px, calc((100% - 1320px) / 2)); width: 314px; padding: 17px 20px 14px; color: #233e32; background: #edf0e6eb; border: 1px solid #ffffff80; border-radius: 8px; box-shadow: 0 8px 36px #112f2020; backdrop-filter: blur(12px); pointer-events: none; }
+.energy-cycle { position: absolute; z-index: 2; top: calc(var(--vision-height) * .22); right: max(36px, calc((100% - 1320px) / 2)); width: 314px; padding: 17px 20px 14px; color: #233e32; background: #edf0e6f5; border: 1px solid #ffffff80; border-radius: 8px; box-shadow: 0 8px 36px #112f2020; pointer-events: none; }
 .energy-cycle[hidden] { display: none; }
 .energy-cycle-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 10px; }
 .energy-cycle-top > span:first-child { display: flex; gap: 9px; align-items: center; }
@@ -80,7 +80,7 @@ html[lang=ja] .green-vision h1 { font-size: clamp(36px, 3.3vw, 52px); }
 @media (max-width: 1100px) {
   .green-vision { --vision-index: 88px; background: #e1e4d2; }
   .vision-poster, .vision-film { width: 100%; mask-image: none; }
-  .vision-poster img, .vision-film { object-position: var(--vision-film-x, 50%) bottom; }
+  .vision-poster img, .vision-film { object-position: right bottom; }
   .green-vision .hero-grid { display: block; min-height: 0; padding: 0 0 calc(56.25vw + 164px); }
   .green-vision .hero-copy { width: 100%; max-width: 650px; padding: 30px 0 0; }
   .green-vision h1 { font-size: 44px; }
@@ -115,7 +115,7 @@ html[lang=ja] .green-vision h1 { font-size: clamp(36px, 3.3vw, 52px); }
   html[lang=en] .green-vision h1 { font-size: clamp(34px, 7.8vw, 47px); }
   html[lang=ja] .green-vision h1 { font-size: clamp(29px, 6.8vw, 39px); }
   .hero-landscape { inset: auto 0 calc(var(--vision-index) + 140px); height: calc(60vw + 90px); }
-  .vision-poster img, .vision-film { object-position: var(--vision-film-x, 68%) center; }
+  .vision-poster img, .vision-film { object-position: right center; }
   .hero-landscape::after { background: linear-gradient(180deg, #e1e4d2 0%, #e1e4d29e 9%, transparent 24%); }
   .vision-caption { right: 16px; bottom: calc(var(--vision-index) + 152px); max-width: calc(100% - 32px); padding: 5px 7px; }
   .vision-caption > span:first-child { font-size: 8px; }

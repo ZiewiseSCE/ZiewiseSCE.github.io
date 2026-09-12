@@ -33,7 +33,7 @@
     if (starting || !film.paused) return;
     if (!film.getAttribute('src')) {
       film.muted = true; film.defaultMuted = true; film.loop = true;
-      film.src = `${media}energy-construction-${quality}.mp4?v=20260913-3`; film.load();
+      film.src = `${media}energy-construction-${quality}.mp4?v=20260913-5`; film.load();
     }
     starting = true;
     try {

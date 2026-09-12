@@ -7,7 +7,7 @@
 - [HDRI source](https://polyhaven.com/a/drakensberg_solitary_mountain)
 - [Ground material source](https://polyhaven.com/a/aerial_rocks_02)
 - Retrieved and license checked: 2026-09-13.
-- 62 seconds, 24 fps, H.264, no audio; 1920×1080 desktop and 960×540 mobile. The gradual day/night cycle is rendered at 12 fps and motion-interpolated to 24 fps; construction retains the original 24 fps.
+- 62 seconds, native 24 fps throughout, H.264, no audio; 1920×1080 desktop and 960×540 mobile. Each frame of the day/night cycle is rendered directly in Cycles; no frame-blending interpolation is used. Two-second keyframes and bounded bitrates support consistent playback.
 - `energy-start.webp` and `energy-complete.webp` are renders from the same scene.
 - Reproduction scripts and exact asset URLs: `tools/construction-film/`.
 
