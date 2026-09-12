@@ -142,7 +142,7 @@
   });
   if ('requestIdleCallback' in window) requestIdleCallback(startScene, { timeout: 1200 });
   else setTimeout(startScene, 100);
-  const startSections = () => import('./section-scenes.js?v=20260912-4').then(module => module.initSectionScenes()).catch(() => {
+  const startSections = () => import('./section-scenes.js?v=20260912-5').then(module => module.initSectionScenes()).catch(() => {
     document.querySelectorAll('.scene-motion').forEach(button => { button.hidden = true; });
   });
   if ('requestIdleCallback' in window) requestIdleCallback(startSections, { timeout: 1600 });

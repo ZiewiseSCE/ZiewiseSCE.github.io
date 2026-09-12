@@ -10,6 +10,7 @@ export function initSectionScenes() {
   if (!hosts.length) return null;
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   const compact = matchMedia('(max-width: 760px)');
+  const kinds = new Set(['overview', 'modules', 'rooftop', 'pvsyst', 'drone', 'cctv', 'pathfinder', 'contact']);
   const finePointer = matchMedia('(hover: hover) and (pointer: fine)');
   let renderer;
   let available = true;
@@ -31,7 +32,7 @@ export function initSectionScenes() {
     button: host.closest('[data-scene-frame]').querySelector('.scene-motion'),
     focus: focusIndex(host.dataset.sceneFocus ?? host.closest('[data-scene-frame]').dataset.sceneFocus ?? -1),
     near: false,
-    paused: motion.matches,
+    paused: host.closest('[data-scene-frame]').dataset.scenePaused === undefined ? motion.matches : host.closest('[data-scene-frame]').dataset.scenePaused === 'true',
     userOverride: false,
     model: null,
     canvas: null,
@@ -45,6 +46,7 @@ export function initSectionScenes() {
     width: 0,
     height: 0,
     drawCount: 0,
+    lastUsed: 0,
   }));
   const byHost = new Map(views.map(view => [view.host, view]));
   const bySceneId = new Map();
@@ -104,6 +106,20 @@ export function initSectionScenes() {
       view.button.hidden = true;
     }
   }
+  function release(view) {
+    view.model?.dispose();
+    view.model = null;
+    view.canvas?.remove();
+    view.canvas = null;
+    view.context = null;
+    view.width = 0;
+    view.height = 0;
+    view.ready = false;
+    view.dirty = true;
+    view.host.classList.remove('scene-ready');
+    view.host.dataset.sceneState = 'parked';
+    control(view);
+  }
   function sizeView(view, bounds) {
     const dpr = Math.min(devicePixelRatio || 1, compact.matches ? 1.15 : 1.5);
     const width = Math.max(1, Math.round(bounds.width * dpr));
@@ -151,14 +167,27 @@ export function initSectionScenes() {
     const candidates = [];
     for (const view of views) {
       // Explicitly exclude inactive routes, even if an observer entry is stale.
-      if (!view.near || view.failed || view.host.closest('[hidden]')) continue;
+      if (view.host.closest('[hidden]')) {
+        if (view.model) release(view);
+        continue;
+      }
+      if (!view.near || view.failed) continue;
       const bounds = view.host.getBoundingClientRect();
       if (!bounds.width || !bounds.height) continue;
       initialize(view);
       if (view.failed) continue;
       sizeView(view, bounds);
+      view.lastUsed = performance.now();
       const intersection = Math.max(0, Math.min(bounds.bottom, innerHeight) - Math.max(bounds.top, 0));
       candidates.push({ view, visible: intersection > 12, score: intersection / bounds.height });
+    }
+    // Long service chapters should not retain every visited model on the GPU.
+    const candidateViews = new Set(candidates.map(item => item.view));
+    const resident = views.filter(view => view.model);
+    let excess = resident.length - (compact.matches ? 4 : 6);
+    for (const view of resident.filter(view => !candidateViews.has(view)).sort((a, b) => a.lastUsed - b.lastUsed)) {
+      if (excess-- <= 0) break;
+      release(view);
     }
     candidates.sort((a, b) => b.score - a.score);
     const maxMoving = compact.matches || (navigator.hardwareConcurrency || 8) < 5 ? 2 : 3;
@@ -206,10 +235,17 @@ export function initSectionScenes() {
   function resize() { views.forEach(view => { view.dirty = true; }); wake(); }
   function visibility() { if (document.hidden) stop(); else { lastTime = 0; lastRenderedAt = 0; wake(); } }
   function sceneFocus(event) {
-    const { sceneId, index } = event.detail || {};
+    const { sceneId, index, kind } = event.detail || {};
     if (!Number.isInteger(index) || index < -1 || index > 3) return;
     const view = bySceneId.get(sceneId);
     if (!view) return;
+    if (kind !== undefined && !kinds.has(kind)) return;
+    if (kind && kind !== view.kind) {
+      release(view);
+      view.kind = kind;
+      view.host.dataset.scene = kind;
+      view.failed = false;
+    }
     view.focus = index;
     view.sceneFrame.dataset.sceneFocus = String(index);
     view.model?.setFocus?.(index, { immediate: motion.matches || view.paused });
@@ -222,6 +258,17 @@ export function initSectionScenes() {
     if (view.near) renderViews(0);
     // Preserve pause/reduced-motion settings: wake only schedules the dirty frame,
     // and the normal visibility filter decides whether animation should continue.
+    wake();
+  }
+  function scenePause(event) {
+    const { sceneId, paused } = event.detail || {};
+    const view = bySceneId.get(sceneId);
+    if (!view || typeof paused !== 'boolean') return;
+    view.paused = paused;
+    view.userOverride = true;
+    view.dirty = true;
+    if (paused) view.model?.setFocus?.(view.focus, { immediate: true });
+    control(view);
     wake();
   }
   function motionChange(event) {
@@ -291,6 +338,7 @@ export function initSectionScenes() {
   window.addEventListener('resize', resize, { passive: true });
   document.addEventListener('visibilitychange', visibility);
   window.addEventListener('sce:scenefocus', sceneFocus);
+  window.addEventListener('sce:scenepause', scenePause);
   motion.addEventListener('change', motionChange);
   mounted = {
     pauseAll() { views.forEach(view => { view.paused = true; view.userOverride = true; control(view); }); stop(); },
@@ -305,6 +353,7 @@ export function initSectionScenes() {
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', visibility);
       window.removeEventListener('sce:scenefocus', sceneFocus);
+      window.removeEventListener('sce:scenepause', scenePause);
       motion.removeEventListener('change', motionChange);
       renderer.domElement.removeEventListener('webglcontextlost', lost);
       renderer.domElement.removeEventListener('webglcontextrestored', restored);

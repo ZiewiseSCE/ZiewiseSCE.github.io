@@ -1,0 +1,130 @@
+/* Every business chapter has its own narrated equipment view. */
+.story-hint { font-size: 11px; color: #61765a; line-height: 1.8; margin: 20px 0 19px; }
+.story-layout { display: grid; grid-template-columns: 1.08fr 1fr; align-items: start; gap: 45px; }
+.story-layout > * { min-width: 0; }
+.story-visual { margin: 0; position: sticky; top: calc(var(--header) + 20px); }
+.story-frame { height: clamp(330px, 31vw, 450px); border: 1px solid #8ca2806b; border-radius: 9px; box-shadow: 0 18px 36px -29px #253f326b; background: radial-gradient(ellipse at 77% 15%, #ebe3cba6, transparent 64%), linear-gradient(132deg, #d0d9c6, var(--detail-wash), #aabaad); }
+.story-frame .scene-motion { display: none !important; }
+.story-frame .scene-heading { top: 19px; left: 20px; right: 20px; font-size: 7px; }
+.story-frame .scene-format { background: #eef0e369; }
+.story-diagram { position: absolute; bottom: 17px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; z-index: 2; padding: 7px 12px; border: 1px solid #c8d6bb90; border-radius: 25px; background: #e8edddc7; backdrop-filter: blur(8px); pointer-events: none; }
+.story-node { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 50%; background: #ccdac1; color: #587050; font: 500 9px 'DM Sans', sans-serif; transition: background .4s, color .4s, box-shadow .4s; }
+.story-node.is-active { color: #f0f2e5; background: var(--detail-accent); box-shadow: 0 0 0 4px #71965a30; }
+.story-wire { position: relative; width: 33px; height: 1px; background: #99b088; overflow: hidden; }
+.story-wire::after { content: ''; position: absolute; inset: 0; width: 14px; background: #f8f4c1; box-shadow: 0 0 4px #fff3bf; animation: story-signal 2.7s linear infinite; animation-play-state: paused; }
+.is-story-running .story-wire::after { animation-play-state: running; }
+@keyframes story-signal { from { transform: translateX(-18px); } to { transform: translateX(36px); } }
+.story-caption { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 17px 0 12px; }
+.story-caption-heading { display: grid; gap: 4px; min-width: 0; }
+.story-counter { font: 500 9px 'DM Sans', sans-serif; letter-spacing: .09em; color: #5c7650; }
+.story-caption-heading strong { color: #355441; font-size: 12px; font-weight: 550; line-height: 1.7; }
+.story-controls { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+.story-controls button { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; min-width: 34px; padding: 6px 8px; border: 1px solid #82997455; border-radius: 3px; background: #e3e9d586; color: #3b5a3c; font-size: 11px; }
+.story-controls button:hover { background: #ecf0e0; }
+.story-controls .story-toggle { font-size: 9px; padding-inline: 10px; }
+.story-progress { height: 2px; background: #899e7b44; overflow: hidden; }
+.story-progress > span { display: block; width: 100%; height: 100%; transform: scaleX(0); transform-origin: left center; background: #648753; transition: transform .1s linear; }
+.story-note { font-size: 8px; line-height: 1.7; margin-top: 9px; color: #6b7e63; }
+.story-layout .story-copy { margin-top: 0; }
+.story-item { transition: background .5s, border-color .5s, box-shadow .5s; }
+.story-item.is-active { background: #e7ecdd96; border-color: #7b9669; }
+.story-topic { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 0; width: 100%; border: 0; text-align: left; font: inherit; color: inherit; line-height: inherit; }
+.story-topic-arrow { color: #6f8860; font-size: 17px; flex-shrink: 0; transition: transform .4s; }
+.story-item.is-active .story-topic { color: var(--detail-accent); }
+.story-item.is-active .story-topic-arrow { transform: rotate(45deg); }
+.story-benefits .detail-benefit-grid { grid-template-columns: 1fr; gap: 15px; }
+.story-benefits .detail-benefit, .story-benefits .detail-benefit:first-child { position: relative; padding: 17px 19px 20px 51px; border: 1px solid #8ea28042; border-radius: 5px; }
+.story-benefits .detail-benefit-mark { position: absolute; left: 17px; top: 22px; font-size: 23px; }
+.story-benefits .detail-benefit p { margin-top: 9px; }
+.detail-scope.has-story { display: block; }
+.detail-scope.has-story .detail-section-intro { max-width: none; display: grid; grid-template-columns: 1.2fr 1fr; gap: 0 90px; }
+.detail-scope.has-story .detail-section-intro .section-kicker { grid-column: 1 / -1; }
+.detail-scope.has-story .detail-section-intro h2 { max-width: 600px; }
+.detail-scope.has-story .detail-section-intro > p { align-self: end; margin: 0; }
+.story-scope { grid-template-columns: 1fr 1.14fr; }
+.story-scope .detail-scope-grid { gap: 19px; align-self: center; }
+.story-scope .detail-scope-item { padding: 20px 17px; gap: 11px; border: 1px solid #8ea28055; border-radius: 4px; height: 100%; }
+.story-scope .detail-scope-item.is-active { border-color: #6e8a60; box-shadow: inset 3px 0 #6e8a60; }
+.story-why { grid-template-columns: 1fr 1.08fr; }
+.story-why .story-visual { order: 2; }
+.story-why .detail-reasons { grid-template-columns: 1fr; gap: 0; }
+.story-why .detail-reasons > div { position: relative; padding: 22px 20px 24px 55px; }
+.story-why .detail-reason-number { position: absolute; left: 15px; top: 23px; margin: 0; font-size: 21px; }
+.story-why .story-frame { background: radial-gradient(ellipse at 75% 20%, #eee0b985, transparent 70%), linear-gradient(128deg, #c7cbb1, #adc0a6 65%, #bcc3a9); }
+.story-process { margin-top: 24px; grid-template-columns: 1fr 1.15fr; }
+.detail-process .story-process ol { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 25px 21px; }
+.detail-process .story-process li { padding: 22px 18px 24px; border: 1px solid #8ea28060; border-radius: 5px; }
+.detail-process .story-process li::before { display: none; }
+.detail-process .story-process li.is-active { box-shadow: inset 0 3px #6b8b59; border-color: #789267; }
+.story-process .detail-process-number { display: grid; place-items: center; width: 29px; height: 29px; border-radius: 50%; border: 1px solid #9cb28b; margin-bottom: 16px; transition: color .4s, background .4s; }
+.story-process .is-active .detail-process-number { color: #edf1e0; background: var(--detail-accent); border-color: var(--detail-accent); }
+.story-reveal.story-entered .story-layout { animation: story-arrive .7s cubic-bezier(.2,.65,.3,1) both; }
+@keyframes story-arrive { from { opacity: .65; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 1200px) {
+  .story-layout, .story-scope, .story-process { gap: 30px; grid-template-columns: 1fr 1fr; }
+  .story-frame { height: 365px; }
+  .story-scope .detail-scope-grid { gap: 14px; }
+  .story-scope .detail-scope-item { padding: 17px 13px; }
+  .story-scope .detail-scope-item > span { display: none; }
+  .story-caption { gap: 9px; }
+  .story-controls { gap: 3px; }
+  .story-controls button { min-width: 31px; padding-inline: 6px; }
+  .story-controls .story-toggle { padding-inline: 7px; }
+}
+@media (max-width: 960px) {
+  .story-layout, .story-scope, .story-process { gap: 23px; }
+  .story-scope .detail-scope-grid, .detail-process .story-process ol { grid-template-columns: 1fr; gap: 12px; }
+  .story-frame { height: 340px; }
+  .story-caption { flex-wrap: wrap; }
+  .story-caption-heading { width: 100%; }
+  .story-caption-heading strong { font-size: 11px; }
+  .story-controls { margin-left: auto; }
+  .detail-scope.has-story .detail-section-intro { gap: 0 40px; }
+  .story-benefits .detail-benefit, .story-benefits .detail-benefit:first-child { padding: 16px 15px 18px 42px; }
+  .story-benefits .detail-benefit-mark { left: 12px; top: 20px; font-size: 20px; }
+}
+@media (max-width: 760px) {
+  .story-layout, .story-scope, .story-process, .story-why { display: block; }
+  .story-hint { margin: 17px 0 15px; font-size: 10px; }
+  .story-visual { position: sticky; top: calc(var(--header) + 7px); z-index: 6; padding-bottom: 12px; background: #ccd5c1; box-shadow: 0 15px 22px -20px #3b533b8c; }
+  .story-why .story-visual { background: #bfcbb3; }
+  .story-frame { height: clamp(208px, 27vh, 265px); border-radius: 6px; }
+  .story-frame .scene-heading { font-size: 6px; top: 14px; left: 14px; right: 14px; }
+  .story-diagram { bottom: 11px; padding: 5px 9px; }
+  .story-node { width: 22px; height: 22px; font-size: 8px; }
+  .story-wire { width: 27px; }
+  .story-caption { padding: 11px 1px 8px; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; }
+  .story-caption-heading { width: auto; gap: 2px; }
+  .story-caption-heading strong { font-size: 10px; line-height: 1.65; }
+  .story-counter { font-size: 7px; }
+  .story-controls button { min-width: 30px; min-height: 40px; }
+  .story-controls .story-toggle { font-size: 8px; max-width: 86px; }
+  .story-note { font-size: 7px; margin-top: 7px; }
+  .story-layout .story-copy { margin-top: 23px; }
+  .story-benefits .detail-benefit, .story-benefits .detail-benefit:first-child { padding: 18px 17px 21px 43px; }
+  .story-benefits .detail-benefit-mark { left: 13px; }
+  .detail-scope.has-story .detail-section-intro { display: block; }
+  .detail-scope.has-story .detail-section-intro > p { margin-top: 18px; }
+  .story-scope .detail-scope-grid { gap: 14px; }
+  .story-scope .detail-scope-item { padding: 19px 17px; }
+  .story-scope .detail-scope-item > span { display: block; }
+  .story-why .detail-reasons > div { padding: 22px 17px 25px 48px; }
+  .story-why .detail-reason-number { left: 12px; top: 23px; }
+  .detail-process .story-process ol { grid-template-columns: 1fr; gap: 16px; }
+  .detail-process .story-process li { padding: 19px 19px 22px 60px; position: relative; }
+  .story-process .detail-process-number { position: absolute; left: 16px; top: 22px; width: 27px; height: 27px; margin: 0; }
+  .story-process { margin-top: 17px; }
+  .story-topic-arrow { font-size: 16px; }
+}
+@media (max-width: 360px) {
+  .story-frame { height: 208px; }
+  .story-controls { gap: 1px; }
+  .story-controls button { min-width: 27px; padding-inline: 4px; }
+  .story-controls .story-toggle { padding-inline: 5px; font-size: 8px; }
+  .story-caption { gap: 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .story-reveal.story-entered .story-layout { animation: none; }
+  .story-wire::after { animation: none; }
+  .story-progress > span, .story-item, .story-node { transition: none; }
+}
