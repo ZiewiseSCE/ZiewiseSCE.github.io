@@ -44,6 +44,7 @@
 .story-scope { grid-template-columns: 1fr 1.14fr; }
 .story-scope .detail-scope-grid { gap: 19px; align-self: center; }
 .story-scope .detail-scope-item { padding: 20px 17px; gap: 11px; border: 1px solid #8ea28055; border-radius: 4px; height: 100%; }
+.story-scope .detail-scope-item > span { flex-shrink: 0; white-space: nowrap; }
 .story-scope .detail-scope-item.is-active { border-color: #6e8a60; box-shadow: inset 3px 0 #6e8a60; }
 .story-why { grid-template-columns: 1fr 1.08fr; }
 .story-why .story-visual { order: 2; }
